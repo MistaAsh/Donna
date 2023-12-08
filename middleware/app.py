@@ -3,7 +3,7 @@ from imports import *
 # Setting up the Web3 provider
 w3 = Web3(Web3.HTTPProvider(WEB3_HTTP_PROVIDER_URI))
 
-# Supabase Setup
+# Settign up the Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -17,9 +17,7 @@ class GetAccountBalanceTool(BaseTool):
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
     def _run(self, account_address):
-        balance = Account().get_account_balance(
-            self,
-        )
+        balance = Account().get_account_balance(self, account_address)
         return balance
 
     def _arun(self, account_address):
@@ -43,6 +41,25 @@ class SendTransactionTool(BaseTool):
 
     def _arun(self, sender_address, receiver_address, amount):
         raise NotImplementedError("send_transaction does not support async")
+
+
+class SwapTokenTool(BaseTool):
+    name = "swap_token"
+    description = """
+        Useful when you want to swap tokens. That is exchange the tokens I have with some other tokens I want.
+        The from_token is the name of the token you want to swap.
+        The from_token_amount is the amount of the from_token you want to swap.
+        The to_token is the name of the token you want to swap to.
+    """
+
+    args_schema: Type[BaseModel] = SwapTokenSchema
+
+    def _run(self, from_token, from_token_amount, to_token):
+        tx = Account().swap_token(self, from_token, from_token_amount, to_token)
+        return tx
+
+    def _arun(self, from_token, from_token_amount, to_token):
+        raise NotImplementedError("swap_token does not support async")
 
 
 # Setting up the Flask app
@@ -69,7 +86,6 @@ def generate_output():
 
     if data is None:
         return jsonify(message="No JSON"), 400
-
     if data["text"] is None or data["text"] == "":
         return jsonify(message="No Text"), 400
     if data["user_id"] is None or data["user_id"] == "":
