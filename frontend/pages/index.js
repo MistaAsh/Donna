@@ -7,6 +7,8 @@ import { useState } from "react";
 import TokensERC20 from '../src/components/airstack/tokensERC20.tsx'
 import TokensNFT from '../src/components/airstack/tokensNFT.tsx'
 import TransactionHistory from '../src/components/transactionHistory.tsx'
+import { useEffect } from "react";
+import { generateRandomString } from "../src/utils/generateRandomString";
 const ActiveButton = ({ activeTab, tab, onClick }) => {
   return (
     <button className={`w-1/4 py-2 hover:border-b-2 ${activeTab === tab.toLowerCase() && 'border-b-2'}`} onClick={onClick}>{tab}</button>
@@ -18,6 +20,18 @@ export default function Home() {
   const network = useNetwork();
   const { data, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [activeTab, setActiveTab] = useState("tokens");
+
+  useEffect(() => {
+    // Check if session ID is already stored in sessionStorage
+    const storedSessionId = sessionStorage.getItem('sessionId');
+
+    if (!storedSessionId) {
+      // If session ID is not stored, generate a new one and store it in sessionStorage
+      const newSessionId = generateRandomString(10);
+      sessionStorage.setItem('sessionId', newSessionId);
+      console.log('Session ID generated and stored in sessionStorage: ', newSessionId);
+    }
+  }, []);
 
   if (!address) {
     return (
