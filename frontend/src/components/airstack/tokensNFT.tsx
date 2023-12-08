@@ -55,27 +55,24 @@ const TokensNFT = ({identity, chain}) => {
   if (loading || !data ) {
     return <p>Loading...</p>;
   }
-  if (!data.TokenBalances || !data.TokenBalances.TokenBalance) {
-    return <p>No tokens found</p>;
-  }
   if (error) {
     return <p>Error: {error.message}</p>;
   }
 
-   // Map the data to a suitable format
+  console.log(data);
 
-   const tokens = data.TokenBalances.TokenBalance.map(t => ({
-    name: t.token.tokenNfts,
-    symbol: t.token.symbol,
-    logo: t.token.logo.original, // This will be null if the original logo is null
-    formattedAmount: t.formattedAmount
-  }));
-
-  // Render the tokens
   return (
-    <div className="flex flex-wrap -mx-2">
-      {tokens.map((token, index) => (
-        <TokenCard key={index} token={token} />
+    <div className="flex flex-wrap justify-center">
+      {data.TokenBalances.TokenBalance.map((token, index) => (
+        token.tokenNfts.contentValue.image && token.tokenNfts.contentValue.image.small ? (
+          <div key={index} className="p-4">
+            <img 
+              src={token.tokenNfts.contentValue.image.small} 
+              alt={`NFT ${token.tokenId}`} 
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+        ) : null
       ))}
     </div>
   );
