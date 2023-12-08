@@ -1,5 +1,5 @@
 // ChatBox.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js'
 
 const ChatBox = () => {
@@ -8,10 +8,11 @@ const ChatBox = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const sessionId = window.sessionStorage.getItem('sessionId')
     if (!inputValue.trim()) return;
     try {
       const { error } = await supabase.from('messages').insert([
-        { content: inputValue, session_id: 1, type: 'user' },
+        { content: inputValue, session_id: sessionId, type: 'user' },
       ]);
       if (error) {
         throw error;

@@ -13,17 +13,17 @@ const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    const sessionId = window.sessionStorage.getItem('sessionId')
     async function getMessages() {
       try {
         const { data, error } = await supabase
           .from('messages')
-          .select('content, type')
-          .eq('session_id', 1)
+          .select('content, type, session_id')
           .order('created_at', { ascending: false });
         if (data === null) {
           setMessages([]);
         } else {
-          setMessages(data);
+          setMessages(data.filter((msg) => msg.session_id === sessionId));
         }
       } catch (error) {
         console.log(error);
@@ -33,6 +33,7 @@ const ChatWindow = () => {
   }, []);
 
   useEffect(() => {
+    const sessionId = window.sessionStorage.getItem('sessionId')
     const channel = supabase
       .channel('realtime posts')
       .on('postgres_changes', {
@@ -42,7 +43,7 @@ const ChatWindow = () => {
       }, payload => {
         setMessages(prevMessages => {
           // Check if message with this ID already exists and the session ID matches
-          if (prevMessages.some(msg => msg.id === payload.new.id) && payload.new.session_id === 1) {
+          if (prevMessages.some(msg => msg.id === payload.new.id) && payload.new.session_id === sessionId) {
             return prevMessages; // Return the unchanged state
           }
           // Otherwise, append the new message
