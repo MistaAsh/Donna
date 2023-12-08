@@ -1,24 +1,5 @@
 import { useQuery } from "@airstack/airstack-react";
 
-const TokenCard = ({ token }) => (
-  <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-    <div className="bg-white rounded-lg shadow p-4 h-full flex items-center">
-      {token.logo && (
-        <img
-          src={token.logo}
-          alt={token.name}
-          className="h-12 w-12 rounded-full mr-4"
-        />
-      )}
-      <div>
-        <h2 className="text-xl font-semibold">{token.name}</h2>
-        <p className="text-gray-600">{token.symbol}</p>
-        <p className="text-gray-600">Amount: {token.formattedAmount}</p>
-      </div>
-    </div>
-  </div>
-);
-
 
 interface QueryResponse {
   data: Data;
@@ -44,35 +25,26 @@ interface Social {
   profileName: string;
 }
 
-// `${}`
-const GET_VITALIK_LENS_FARCASTER_ENS = `
-query MyQuery {
-  Wallet(input: {identity: "vitalik.eth", blockchain: ethereum}) {
-    socials {
-      dappName
-      profileName
-    }
-    addresses
-  }
-}
-`;
 
-const TokensERC20 = ({identity, chain}) => {
+const TokensNFT = ({identity, chain}) => {
 
   const query = `
     query MyQuery {
       TokenBalances(
-        input: {filter: {owner: {_eq: "${identity}"}}, blockchain: ${chain}, limit: 50}
+        input: {filter: {owner: {_eq: "${identity}"}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain:  ${chain}, limit: 50}
       ) {
         TokenBalance {
-          token {
-            name
-            symbol
-            logo {
-              original
+          amount
+          tokenAddress
+          tokenId
+          tokenType
+          tokenNfts {
+            contentValue {
+              image {
+                small
+              }
             }
           }
-          formattedAmount
         }
       }
     }
@@ -93,7 +65,7 @@ const TokensERC20 = ({identity, chain}) => {
    // Map the data to a suitable format
 
    const tokens = data.TokenBalances.TokenBalance.map(t => ({
-    name: t.token.name,
+    name: t.token.tokenNfts,
     symbol: t.token.symbol,
     logo: t.token.logo.original, // This will be null if the original logo is null
     formattedAmount: t.formattedAmount
@@ -110,4 +82,4 @@ const TokensERC20 = ({identity, chain}) => {
 
 }
 
-export default TokensERC20;
+export default TokensNFT;

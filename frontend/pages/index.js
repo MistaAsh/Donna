@@ -5,6 +5,7 @@ import { useBalance } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { useState } from "react";
 import TokensERC20 from '../src/components/airstack/tokensERC20.tsx'
+import TransactionHistory from '../src/components/transactionHistory.tsx'
 const ActiveButton = ({ activeTab, tab, onClick }) => {
   return (
     <button className={`w-1/4 py-2 hover:border-b-2 ${activeTab === tab.toLowerCase() && 'border-b-2'}`} onClick={onClick}>{tab}</button>
@@ -58,6 +59,9 @@ export default function Home() {
             {activeTab}
             {activeTab === 'tokens' && (
                 <TokensERC20 identity= {address} chain='ethereum'/>
+              )}
+            {activeTab === 'transactions' && (
+                <TransactionHistory chainId={1} address={address} />
               )}
           </div>
         </div>
