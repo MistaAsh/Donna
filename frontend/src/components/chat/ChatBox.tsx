@@ -1,17 +1,13 @@
-// InputComponent.jsx
+// ChatBox.jsx
 import React from 'react';
 
 const ChatBox = () => {
   return (
-    <div className="mb-4">
-      <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="input">
-        somethhing
-      </label>
+    <div className="mb-4 mx-4">
       <input
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        id="input"
         type="text"
-        placeholder={'placeholder'}
+        className="rounded-2xl h-15 py-2 px-3 block w-full border border-gray-300 text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-white dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+        placeholder="Enter your message here"
       />
     </div>
   );
