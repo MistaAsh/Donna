@@ -19,7 +19,6 @@ const TokenCard = ({ token }) => (
   </div>
 );
 
-
 interface QueryResponse {
   data: Data;
   loading: boolean;
@@ -57,8 +56,7 @@ query MyQuery {
 }
 `;
 
-const TokensERC20 = ({identity, chain}) => {
-
+const TokensERC20 = ({ identity, chain }) => {
   const query = `
     query MyQuery {
       TokenBalances(
@@ -78,9 +76,13 @@ const TokensERC20 = ({identity, chain}) => {
     }
   `;
 
-  // console.log(query); 
-  const { data, loading, error }: QueryResponse = useQuery(query, {}, { cache: false });
-  if (loading || !data ) {
+  // console.log(query);
+  const { data, loading, error }: QueryResponse = useQuery(
+    query,
+    {},
+    { cache: false },
+  );
+  if (loading || !data) {
     return <p>Loading...</p>;
   }
   if (!data.TokenBalances || !data.TokenBalances.TokenBalance) {
@@ -90,13 +92,13 @@ const TokensERC20 = ({identity, chain}) => {
     return <p>Error: {error.message}</p>;
   }
 
-   // Map the data to a suitable format
+  // Map the data to a suitable format
 
-   const tokens = data.TokenBalances.TokenBalance.map(t => ({
+  const tokens = data.TokenBalances.TokenBalance.map((t) => ({
     name: t.token.name,
     symbol: t.token.symbol,
     logo: t.token.logo.original, // This will be null if the original logo is null
-    formattedAmount: t.formattedAmount
+    formattedAmount: t.formattedAmount,
   }));
 
   // Render the tokens
@@ -107,7 +109,6 @@ const TokensERC20 = ({identity, chain}) => {
       ))}
     </div>
   );
-
-}
+};
 
 export default TokensERC20;

@@ -1,6 +1,5 @@
 import { useQuery } from "@airstack/airstack-react";
 
-
 interface QueryResponse {
   data: Data;
   loading: boolean;
@@ -25,9 +24,7 @@ interface Social {
   profileName: string;
 }
 
-
-const TokensNFT = ({identity, chain}) => {
-
+const TokensNFT = ({ identity, chain }) => {
   const query = `
     query MyQuery {
       TokenBalances(
@@ -50,9 +47,13 @@ const TokensNFT = ({identity, chain}) => {
     }
   `;
 
-  // console.log(query); 
-  const { data, loading, error }: QueryResponse = useQuery(query, {}, { cache: false });
-  if (loading || !data ) {
+  // console.log(query);
+  const { data, loading, error }: QueryResponse = useQuery(
+    query,
+    {},
+    { cache: false },
+  );
+  if (loading || !data) {
     return <p>Loading...</p>;
   }
   if (error) {
@@ -63,20 +64,20 @@ const TokensNFT = ({identity, chain}) => {
 
   return (
     <div className="flex flex-wrap justify-center">
-      {data.TokenBalances.TokenBalance.map((token, index) => (
-        token.tokenNfts.contentValue.image && token.tokenNfts.contentValue.image.small ? (
+      {data.TokenBalances.TokenBalance.map((token, index) =>
+        token.tokenNfts.contentValue.image &&
+        token.tokenNfts.contentValue.image.small ? (
           <div key={index} className="p-4">
-            <img 
-              src={token.tokenNfts.contentValue.image.small} 
-              alt={`NFT ${token.tokenId}`} 
+            <img
+              src={token.tokenNfts.contentValue.image.small}
+              alt={`NFT ${token.tokenId}`}
               className="rounded-lg shadow-lg"
             />
           </div>
-        ) : null
-      ))}
+        ) : null,
+      )}
     </div>
   );
-
-}
+};
 
 export default TokensNFT;

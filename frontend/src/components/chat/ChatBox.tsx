@@ -1,19 +1,22 @@
 // ChatBox.jsx
-import React, { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js'
+import React, { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 const ChatBox = () => {
-  const supabase = createClient('https://ydlodplhsscvfhxfgiha.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbG9kcGxoc3NjdmZoeGZnaWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIwNjM3MjIsImV4cCI6MjAxNzYzOTcyMn0.Y41Q9wTAHmPf9sH4DAUL56Z_O1RneJmH_aZPHGH_-DY')
-  const [inputValue, setInputValue] = useState('');
+  const supabase = createClient(
+    "https://ydlodplhsscvfhxfgiha.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbG9kcGxoc3NjdmZoeGZnaWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIwNjM3MjIsImV4cCI6MjAxNzYzOTcyMn0.Y41Q9wTAHmPf9sH4DAUL56Z_O1RneJmH_aZPHGH_-DY",
+  );
+  const [inputValue, setInputValue] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const sessionId = window.sessionStorage.getItem('sessionId')
+    const sessionId = window.sessionStorage.getItem("sessionId");
     if (!inputValue.trim()) return;
     try {
-      const { error } = await supabase.from('messages').insert([
-        { content: inputValue, session_id: sessionId, type: 'user' },
-      ]);
+      const { error } = await supabase
+        .from("messages")
+        .insert([{ content: inputValue, session_id: sessionId, type: "user" }]);
       if (error) {
         throw error;
       }
@@ -39,7 +42,7 @@ const ChatBox = () => {
     } catch (err) {
       console.error("Error in handleSubmit:", err.message);
     } finally {
-      setInputValue('');
+      setInputValue("");
     }
   };
 
@@ -52,7 +55,7 @@ const ChatBox = () => {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === "Enter") {
             handleSubmit(e);
           }
         }}

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // Function to fetch transaction history
 const fetchTransactionHistory = async (chainId, address) => {
@@ -10,7 +10,7 @@ const fetchTransactionHistory = async (chainId, address) => {
     const response = await axios.get(url);
     return response.data.data.items; // The transaction data
   } catch (error) {
-    throw new Error('Error fetching transaction history:', error);
+    throw new Error("Error fetching transaction history:", error);
   }
 };
 
@@ -23,11 +23,11 @@ const TransactionHistoryComponent = ({ chainId, address }) => {
   useEffect(() => {
     setLoading(true);
     fetchTransactionHistory(chainId, address)
-      .then(data => {
+      .then((data) => {
         setTransactions(data);
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         setError(error.message);
         setLoading(false);
       });
