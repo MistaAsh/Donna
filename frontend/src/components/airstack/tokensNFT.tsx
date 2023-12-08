@@ -1,0 +1,82 @@
+import { useQuery } from "@airstack/airstack-react";
+
+
+interface QueryResponse {
+  data: Data;
+  loading: boolean;
+  error: Error;
+}
+
+interface Data {
+  Wallet: Wallet;
+}
+
+interface Error {
+  message: string;
+}
+
+interface Wallet {
+  socials: Social[];
+  addresses: string[];
+}
+
+interface Social {
+  dappName: "lens" | "farcaster";
+  profileName: string;
+}
+
+
+const TokensNFT = ({identity, chain}) => {
+
+  const query = `
+    query MyQuery {
+      TokenBalances(
+        input: {filter: {owner: {_eq: "${identity}"}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain:  ${chain}, limit: 50}
+      ) {
+        TokenBalance {
+          amount
+          tokenAddress
+          tokenId
+          tokenType
+          tokenNfts {
+            contentValue {
+              image {
+                small
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  // console.log(query); 
+  const { data, loading, error }: QueryResponse = useQuery(query, {}, { cache: false });
+  if (loading || !data ) {
+    return <p>Loading...</p>;
+  }
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  console.log(data);
+
+  return (
+    <div className="flex flex-wrap justify-center">
+      {data.TokenBalances.TokenBalance.map((token, index) => (
+        token.tokenNfts.contentValue.image && token.tokenNfts.contentValue.image.small ? (
+          <div key={index} className="p-4">
+            <img 
+              src={token.tokenNfts.contentValue.image.small} 
+              alt={`NFT ${token.tokenId}`} 
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+        ) : null
+      ))}
+    </div>
+  );
+
+}
+
+export default TokensNFT;
