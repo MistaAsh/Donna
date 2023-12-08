@@ -1,10 +1,10 @@
-import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useNetwork } from "@thirdweb-dev/react";
 import styles from "../styles/Home.module.css";
 import Image from "next/image";
 import { useBalance } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { useState } from "react";
-
+import TokensERC20 from '../src/components/airstack/tokensERC20.tsx'
 const ActiveButton = ({ activeTab, tab, onClick }) => {
   return (
     <button className={`w-1/4 py-2 hover:border-b-2 ${activeTab === tab.toLowerCase() && 'border-b-2'}`} onClick={onClick}>{tab}</button>
@@ -13,6 +13,7 @@ const ActiveButton = ({ activeTab, tab, onClick }) => {
 
 export default function Home() {
   const address = useAddress();
+  const network = useNetwork();
   const { data, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [activeTab, setActiveTab] = useState("tokens");
 
@@ -55,6 +56,9 @@ export default function Home() {
           </div>
           <div className="flex flex-row items-center justify-center pt-10">
             {activeTab}
+            {activeTab === 'tokens' && (
+                <TokensERC20 identity= {address} chain='ethereum'/>
+              )}
           </div>
         </div>
       </div>
