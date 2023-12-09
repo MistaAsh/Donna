@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
-import { useAddress, useChainId } from "@thirdweb-dev/react";
+import { useAddress, useChainId, useContract } from "@thirdweb-dev/react";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 
@@ -20,31 +20,149 @@ const SwapModal = () => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const { contract, isLoading, error } = useContract("", [
+    {
+      constant: true,
+      inputs: [
+        {
+          name: '',
+          type: 'address'
+        }
+      ],
+      name: 'balanceOf',
+      stateMutability: 'view',
+      outputs: [
+        {
+          name: '',
+          type: 'uint256'
+        }
+      ],
+      payable: false,
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [
+        {
+          name: '',
+          type: 'address'
+        },
+        {
+          name: '',
+          type: 'address'
+        }
+      ],
+      name: 'allowance',
+      stateMutability: 'view',
+      outputs: [
+        {
+          name: '',
+          type: 'uint256'
+        }
+      ],
+      payable: false,
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          name: '',
+          type: 'address'
+        },
+        {
+          name: '',
+          type: 'uint256'
+        }
+      ],
+      name: 'approve',
+      outputs: [],
+      payable: false,
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'decimals',
+      outputs: [
+        {
+          name: '',
+          type: 'uint8'
+        }
+      ],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'symbol',
+      outputs: [
+        {
+          name: '',
+          type: 'string'
+        }
+      ],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'name',
+      outputs: [
+        {
+          name: '',
+          type: 'string'
+        }
+      ],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function'
+    }
+  ]);
+
   const address = useAddress();
   const chainId = useChainId();
-
   const [fromTokenAddress, setFromTokenAddress] = useState('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270')
   const [toTokenAddress, setToTokenAddress] = useState('0xc2132D05D31c914a87C6611C10748AEb04B58e8F')
   const [amount, setAmount] = useState('100000000000000000000')
 
   const [fusionApiData, setFusionApiData] = useState()
-  const fusionApi = `http://localhost:3001/?url=https://api.1inch.dev/fusion/quoter/v1.0/${chainId}/quote/receive/?fromTokenAddress=${fromTokenAddress}%26toTokenAddress=${toTokenAddress}%26amount=${amount}%26walletAddress=${address}%26source=sdk`
 
   // call this url to get the data every 10 seconds
   useEffect(() => {
     try {
       const interval = setInterval(() => {
-        fetch(fusionApi)
-          .then(response => response.json())
-          .then(data => setFusionApiData(data))
+        fetch(`/api/swap`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fromTokenAddress, toTokenAddress, amount, address, chainId }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setFusionApiData(data?.data)
+          })
+          .catch((err) => {
+            console.error("Error in handleSubmit:", err.message);
+          })
       }, 10000);
+
+      console.log(fusionApiData, 'lol')
 
       return () => clearInterval(interval);
     } catch (error) {
       console.log(error)
     }
-  }, [fromTokenAddress, toTokenAddress, amount, address, chainId, fusionApi]);
+  }, [fromTokenAddress, toTokenAddress, amount, address, chainId]);
 
+  const handleSwap = async () => {
+    // await contract?.call("approve", [fusionApiData?.routerAddress, fusionApiData?.fromTokenAmount], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+    const data = contract?.call("balanceOf", [address], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+  }
 
   return (
     <>
@@ -67,13 +185,13 @@ const SwapModal = () => {
                     alt={""}
                     className="h-10 w-10 rounded-full"
                   />
-                  <span className="text-gray-800 font-bold text-2xl">MATIC</span>
+                  <span className="text-gray-800 font-bold text-2xl">{fusionApiData?.fromTokenSymbol || "WMATIC"}</span>
                 </div>
-                <span className="text-gray-800 font-bold text-2xl">1</span>
+                <span className="text-gray-800 font-bold text-2xl">{fusionApiData?.fromTokenAmount / 10 ** 18}</span>
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
-                <span className="">MATIC</span>
-                <span>~$0.912585</span>
+                <span className="">{fusionApiData?.fromTokenName || "WMATIC"}</span>
+                <span>~{fusionApiData?.volume?.usd?.fromToken}</span>
               </div>
             </div>
             <div className="flex flex-col items-center py-3">
@@ -95,33 +213,37 @@ const SwapModal = () => {
                     alt={""}
                     className="h-10 w-10 rounded-full"
                   />
-                  <span className="text-gray-800 font-bold text-2xl">USDT</span>
+                  <span className="text-gray-800 font-bold text-2xl">{fusionApiData?.fromTokenSymbol || "USDT"}</span>
                 </div>
-                <span className="text-gray-800 font-bold text-2xl">0.868115</span>
+                <span className="text-gray-800 font-bold text-2xl">{fusionApiData?.toTokenAmount / 10 ** 6}</span>
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
-                <span className="">Tether USD</span>
-                <span>~$0.870118 (-4.65%)</span>
+                <span className="">{fusionApiData?.fromTokenName || "Tether USD"}</span>
+                <span>~{fusionApiData?.volume?.usd?.toToken}</span>
               </div>
             </div>
             <div className="flex flex-col gap-1.5 px-5 py-4 rounded-md mt-2">
-              <div className="flex pt-2 text-sm text-gray-600 font-bold flex-row items-center justify-between">
-                <span className="">1 MATIC = 0.868115 USDT <span className="font-semibold">(~$0.87)</span></span>
+              <div className="flex text-sm text-gray-600 font-bold flex-row items-center justify-between">
+                {/* <span className="">1 MATIC = 0.868115 USDT <span className="font-semibold">(~$0.87)</span></span> */}
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
-                <span className="">Slippage tolerance</span>
-                <span className="font-bold">1% Auto</span>
+                <span className="">Auction Start Amount</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionStartAmount}</span>
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
+                <span className="">Auction End Amount</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionEndAmount}</span>
+              </div>
+              {/* <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Minimum receive</span>
                 <span className="font-bold">0.859014 USDT</span>
-              </div>
+              </div> */}
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Network Fee</span>
-                <span className="font-bold">Free</span>
+                <span className="font-bold">{fusionApiData?.gas / 10 ** 6}</span>
               </div>
             </div>
-            <button className="bg-[#adaaaa] py-2.5 rounded-md text-white text-lg font-semibold">Swap</button>
+            <button className="bg-[#adaaaa] py-2.5 rounded-md text-white text-lg font-semibold" onClick={handleSwap}>Swap</button>
           </div>
         </Box>
       </Modal>
