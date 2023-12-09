@@ -47,8 +47,8 @@ const ChatWindow = () => {
           setMessages((prevMessages) => {
             // Check if message with this ID already exists and the session ID matches
             if (
-              prevMessages.some((msg) => msg.id === payload.new.id) &&
-              payload.new.session_id === sessionId
+              prevMessages.some((msg) => msg.id === payload.new.id) ||
+              payload.new.session_id !== sessionId
             ) {
               return prevMessages; // Return the unchanged state
             }
