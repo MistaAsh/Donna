@@ -7,6 +7,8 @@ import { useContractRead, useContractWrite, useContract, Web3Button } from "@thi
 import { SwapWidget } from '@uniswap/widgets'
 import '@uniswap/widgets/fonts.css'
 import Markdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 // Address that will be approved to spend tokens
 
@@ -70,8 +72,8 @@ const SwapModal = () => {
   }, [fromTokenAddress, toTokenAddress, amount, userAddress, chainId]);
 
   const handleSwap = async () => {
-  //   // await contract?.call("approve", [fusionApiData?.routerAddress, fusionApiData?.fromTokenAmount], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
-  //   const data = contract?.call("balanceOf", [address], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+    //   // await contract?.call("approve", [fusionApiData?.routerAddress, fusionApiData?.fromTokenAmount], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+    //   const data = contract?.call("balanceOf", [address], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
   }
 
   const { contract } = useContract(fromTokenAddress);
@@ -128,7 +130,7 @@ const SwapModal = () => {
     <>
       <button className="py-2 px-3 bg-white mx-3 rounded-lg" onClick={handleOpen}>Swap</button>
       <div className="Uniswap">
-        <SwapWidget 
+        <SwapWidget
           defaultInputTokenAddress={NATIVE}
           defaultInputAmount={2}
           defaultOutputTokenAddress={WBTC} />
@@ -194,11 +196,11 @@ const SwapModal = () => {
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Auction Start Amount</span>
-                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionStartAmount/10**6}</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionStartAmount / 10 ** 6}</span>
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Auction End Amount</span>
-                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionEndAmount/10**6}</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionEndAmount / 10 ** 6}</span>
               </div>
               {/* <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Minimum receive</span>
@@ -211,7 +213,7 @@ const SwapModal = () => {
             </div>
             {/* <button className="bg-[#adaaaa] py-2.5 rounded-md text-white text-lg font-semibold" onClick={handleSwap} disable={true} >Swap</button> */}
             {isApproved && false ? (
-        <div>Done, bro! Tokens already approved.</div>
+              <div>Done, bro! Tokens already approved.</div>
             ) : (
               <Web3Button
                 contractAddress={fromTokenAddress}
@@ -228,15 +230,83 @@ const SwapModal = () => {
   )
 }
 
+const DeployContractButton = ({ abi, byteCode }) => {
+  return (
+    <button className="text-slate-600 bg-white p-2 rounded mt-3">
+      Deploy Contract
+    </button>
+  )
+}
 
 const BotMessage = ({ message }) => {
+  const [abi, setAbi] = useState()
+  const [bytecode, setBytecode] = useState()
+
+  const extractAbiFromMessage = (message) => {
+    const abiRegex = /#abistart#(.*?)#abiend#/s; // Using the s flag for dot to match newline characters
+    const match = message.match(abiRegex);
+
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+
+    return null; // Return null if ABI is not found
+  };
+
+  const extractByteCodeFromMessage = (message) => {
+    const abiRegex = /#bcstart#(.*?)#bcend#/s; // Using the s flag for dot to match newline characters
+    const match = message.match(abiRegex);
+
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+
+    return null; // Return null if ABI is not found
+  };
+
+  useEffect(() => {
+    const abi = extractAbiFromMessage(message);
+    const bytecode = extractByteCodeFromMessage(message);
+
+    if (abi) {
+      setAbi(abi);
+    }
+
+    if (bytecode) {
+      setBytecode(bytecode);
+    }
+  }, [message]);
+
+
   return (
     <div className="flex justify-start w-full relative mb-6 max-w-3xl">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
-          <Markdown>{message}</Markdown>
+          {abi && bytecode ? <DeployContractButton abi={abi} byteCode={bytecode} /> :
+            <Markdown
+              children={message}
+              components={{
+                code(props) {
+                  const { children, className, node, ...rest } = props
+                  const match = /language-(\w+)/.exec(className || '')
+                  return match ? (
+                    <SyntaxHighlighter
+                      {...rest}
+                      PreTag="div"
+                      children={String(children).replace(/\n$/, '')}
+                      language={match[1]}
+                      style={dark}
+                    />
+                  ) : (
+                    <code {...rest} className={className}>
+                      {children}
+                    </code>
+                  )
+                }
+              }}
+            />
+          }
         </div>
-        <SwapModal />
       </div>
       <span className="w-10 h-10 rounded-br-full bg-slate-600 absolute bottom-0 left-0 transform translate-y-1/2"></span>
     </div>
