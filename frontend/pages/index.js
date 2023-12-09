@@ -97,8 +97,7 @@ export default function Home() {
               onClick={() => setActiveTab("contacts")}
             />
           </div>
-          <div className="flex flex-row items-center justify-center pt-10">
-            {activeTab}
+          <div className="flex flex-row items-center justify-center pt-10 px-6 w-full">
             {activeTab === "tokens" && (
               <TokensERC20 identity={address} chain="ethereum" />
             )}

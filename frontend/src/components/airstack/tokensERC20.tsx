@@ -1,19 +1,16 @@
 import { useQuery } from "@airstack/airstack-react";
 
 const TokenCard = ({ token }) => (
-  <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-    <div className="bg-white rounded-lg shadow p-4 h-full flex items-center">
-      {token.logo && (
-        <img
-          src={token.logo}
-          alt={token.name}
-          className="h-12 w-12 rounded-full mr-4"
-        />
-      )}
+  <div className="w-full px-2 mb-4">
+    <div className="flex flex-row items-center gap-6 border-b-2 pb-5 px-6 border-b-[#F8F8F8]">
+      <img
+        src={token?.logo || "/images/alt-token.png"}
+        alt={token?.name}
+        className="h-12 w-12 rounded-full"
+      />
       <div>
-        <h2 className="text-xl font-semibold">{token.name}</h2>
-        <p className="text-gray-600">{token.symbol}</p>
-        <p className="text-gray-600">Amount: {token.formattedAmount}</p>
+        <h2 className="text-lg font-bold">{token.name}</h2>
+        <p className="text-sm font-medium text-[#424242]">{token.formattedAmount} {token.symbol}</p>
       </div>
     </div>
   </div>
@@ -82,19 +79,22 @@ const TokensERC20 = ({ identity, chain }) => {
     {},
     { cache: false },
   );
+  
   if (loading || !data) {
     return <p>Loading...</p>;
   }
-  if (!data.TokenBalances || !data.TokenBalances.TokenBalance) {
+  
+  if (!data?.TokenBalances || !data?.TokenBalances.TokenBalance) {
     return <p>No tokens found</p>;
   }
+  
   if (error) {
     return <p>Error: {error.message}</p>;
   }
 
   // Map the data to a suitable format
 
-  const tokens = data.TokenBalances.TokenBalance.map((t) => ({
+  const tokens = data?.TokenBalances?.TokenBalance.map((t) => ({
     name: t.token.name,
     symbol: t.token.symbol,
     logo: t.token.logo.original, // This will be null if the original logo is null
@@ -103,8 +103,8 @@ const TokensERC20 = ({ identity, chain }) => {
 
   // Render the tokens
   return (
-    <div className="flex flex-wrap -mx-2">
-      {tokens.map((token, index) => (
+    <div className="flex flex-col w-full">
+      {tokens?.map((token, index) => (
         <TokenCard key={index} token={token} />
       ))}
     </div>
