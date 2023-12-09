@@ -7,6 +7,23 @@ w3 = Web3(Web3.HTTPProvider(WEB3_HTTP_PROVIDER_URI))
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
+def push_to_supabase(output, type, session_id):
+    try:
+        result = (
+            supabase.table("messages")
+            .insert(
+                {
+                    "content": output,
+                    "type": type,
+                    "session_id": session_id,
+                }
+            )
+            .execute()
+        )
+    except Exception as e:
+        return jsonify(message="Error in inserting to Supabase"), 400
+
+
 class GetAccountBalanceTool(BaseTool):
     name = "get_account_balance"
     description = """
@@ -35,8 +52,11 @@ class SendTransactionTool(BaseTool):
 
     args_schema: Type[BaseModel] = SendTransactionSchema
 
+    underlying_session_id: str = None
+
     def _run(self, sender_address, receiver_address, amount):
         tx = Account().send_transaction(w3, sender_address, receiver_address, amount)
+        push_to_supabase(tx, "to_parse", self.underlying_session_id)
         return tx
 
     def _arun(self, sender_address, receiver_address, amount):
@@ -54,8 +74,11 @@ class SwapTokenTool(BaseTool):
 
     args_schema: Type[BaseModel] = SwapTokenSchema
 
+    underlying_session_id: str = None
+
     def _run(self, from_token, from_token_amount, to_token):
         tx = Account().swap_token(w3, from_token, from_token_amount, to_token)
+        push_to_supabase(tx, "to_parse", self.underlying_session_id)
         return tx
 
     def _arun(self, from_token, from_token_amount, to_token):
@@ -96,7 +119,8 @@ def generate_output():
     # Initialize Agent
     tools = [
         GetAccountBalanceTool(),
-        SendTransactionTool(),
+        SendTransactionTool(underlying_session_id = data["session_id"]),
+        SwapTokenTool(underlying_session_id = data["session_id"]),
     ]
     agent = initialize_agent(
         tools,
@@ -107,22 +131,8 @@ def generate_output():
     )
 
     output = agent.run(data["content"])
-
-    # Store the output in supabase
-    try:
-        result = (
-            supabase.table("messages")
-            .insert(
-                {
-                    "content": output,
-                    "type": "bot",
-                    "session_id": data["session_id"],
-                }
-            )
-            .execute()
-        )
-    except Exception as e:
-        return jsonify(message="session_id does not exist in Supabase"), 400
+    push_to_supabase(output, "bot", data["session_id"])
+    
     return jsonify(message="Success")
 
 
