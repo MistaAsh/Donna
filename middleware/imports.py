@@ -12,3 +12,6 @@ from web3 import Web3
 from langchain.agents import AgentType, initialize_agent
 from langchain.chat_models import ChatOpenAI
 from langchain.tools import BaseTool
+
+from airstack.execute_query import AirstackClient
+import json

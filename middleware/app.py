@@ -1,7 +1,15 @@
 from imports import *
 
+from constants import (
+    WEB3_HTTP_PROVIDER_URI,
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    AGENT_KWARGS,
+    RPC_URL,
+)
+
 # Setting up the Web3 provider
-w3 = Web3(Web3.HTTPProvider(WEB3_HTTP_PROVIDER_URI))
+w3 = Web3(Web3.HTTPProvider(RPC_URL["ethereum"]))
 
 # Settign up the Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -27,14 +35,15 @@ def push_to_supabase(output, type, session_id):
 class GetAccountBalanceTool(BaseTool):
     name = "get_account_balance"
     description = """
-        Useful when you want ot get the account balance of the given wallet address in ETH.
+        Useful when you want ot get the account balance of the given wallet address in native token or ERC20 token.
         The wallet address is the address of the wallet you want to get the balance of.
+        The token_address is the address of the token you want to get the balance of (If not provided we are using the native token and don't need it as input).
     """
 
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
-    def _run(self, account_address):
-        balance = Account().get_account_balance(w3, account_address)
+    def _run(self, account_address, token_address=None):
+        balance = Account().get_account_balance(w3, account_address, token_address)
         return balance
 
     def _arun(self, account_address):
@@ -84,6 +93,25 @@ class SwapTokenTool(BaseTool):
     def _arun(self, from_token, from_token_amount, to_token):
         raise NotImplementedError("swap_token does not support async")
 
+class CheckSocialFollowers(BaseTool):
+    name = "check_social_followers"
+    description = """
+        Useful when you want to check the number of followers on lens or fancaster.
+        The social_media_platform is the name of the social media platform you want to check.
+        The social_media_handle is the handle of the account you want to check.
+    """
+
+    args_schema: Type[BaseModel] = CheckSocialFollowersSchema
+
+    underlying_session_id: str = None
+
+    def _run(self, social_media_platform, social_media_handle):
+        followers = SocialMedia().check_social_followers(social_media_platform, social_media_handle)
+        return followers
+
+    def _arun(self, social_media_platform, social_media_handle):
+        raise NotImplementedError("check_social_followers does not support async")
+    
 
 # Setting up the Flask app
 app = Flask(__name__)
@@ -114,7 +142,7 @@ def generate_output():
     if data["session_id"] is None or data["session_id"] == "":
         return jsonify(message="No Chat ID"), 400
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
 
     # Initialize Agent
     tools = [

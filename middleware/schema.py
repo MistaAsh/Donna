@@ -8,7 +8,10 @@ class GetAccountBalanceSchema(BaseModel):
     account_address: str = Field(
         description="The address of the account to get the balance of"
     )
-
+    token_address: str = Field(
+        default=None,
+        description="The contract address of the token to get the balance of. (can be None if you want to get the Native token balance))"
+    )
 
 class SendTransactionSchema(BaseModel):
     """
@@ -35,4 +38,15 @@ class SwapTokenSchema(BaseModel):
     )
     to_token: str = Field(
         description="The name of the token that you want to swap to"
+    )
+
+class CheckSocialFollowersSchema(BaseModel):
+    """
+    Input for check_social_followers
+    """
+    social_media: str = Field(
+        description="The name of the social media platform to check the followers of"
+    )
+    username: str = Field(
+        description="The username of the account to check the followers of"
     )

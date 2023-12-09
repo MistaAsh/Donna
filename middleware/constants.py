@@ -24,3 +24,7 @@ SYSTEM_MESSAGE = SystemMessage(
     """
 )
 AGENT_KWARGS = {"system_message": SYSTEM_MESSAGE}
+
+RPC_URL = {
+    "ethereum": "https://cloudflare-eth.com",
+}
