@@ -23,6 +23,13 @@ def push_to_supabase(output, type, session_id):
     except Exception as e:
         return jsonify(message="Error in inserting to Supabase"), 400
 
+executor = ThreadPoolExecutor()
+
+def run_async(async_func):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(async_func)
+
 
 class GetAccountBalanceTool(BaseTool):
     name = "get_account_balance"
@@ -85,7 +92,7 @@ class SwapTokenTool(BaseTool):
     def _arun(self, from_token, from_token_amount, to_token):
         raise NotImplementedError("swap_token does not support async")
 
-class CheckSocialFollowers(BaseTool):
+class CheckSocialFollowersTool(BaseTool):
     name = "check_social_followers"
     description = """
         Useful when you want to check the number of followers on Web3 social media platforms like Lens or Fancaster for a particular user or address.
@@ -98,12 +105,15 @@ class CheckSocialFollowers(BaseTool):
     underlying_session_id: str = None
 
     def _run(self, social_media_platform, social_media_handle):
-        followers = Socials().check_social_followers(social_media_platform, social_media_handle)
+        future = executor.submit(run_async, Socials().check_social_followers(social_media_platform, social_media_handle))
+        followers = future.result()
+        print("test123", followers, followers)
         return followers
+        
+
 
     def _arun(self, social_media_platform, social_media_handle):
-        raise NotImplementedError("check_social_followers does not support async")
-    
+        raise NotImplementedError("check_social_followers only supports async")
 
 # Setting up the Flask app
 app = Flask(__name__)
@@ -141,6 +151,7 @@ def generate_output():
         GetAccountBalanceTool(),
         SendTransactionTool(underlying_session_id = data["session_id"]),
         SwapTokenTool(underlying_session_id = data["session_id"]),
+        CheckSocialFollowersTool(underlying_session_id = data["session_id"]),
     ]
     agent = initialize_agent(
         tools,

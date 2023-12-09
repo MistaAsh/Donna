@@ -14,6 +14,9 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
+# Airstack Constants
+AIRSTACK_API_KEY = os.environ.get("AIRSTACK_API_KEY")
+
 # ChatGPT System Prompt
 SYSTEM_MESSAGE = SystemMessage(
     content="""

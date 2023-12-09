@@ -43,9 +43,9 @@ class CheckSocialFollowersSchema(BaseModel):
     """
     Input for check_social_followers
     """
-    social_media: str = Field(
+    social_media_platform: str = Field(
         description="The name of the social media platform to check the followers of"
     )
-    username: str = Field(
+    social_media_handle: str = Field(
         description="The username of the account to check the followers of"
     )
