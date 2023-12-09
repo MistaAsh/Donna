@@ -17,7 +17,7 @@ class GetAccountBalanceTool(BaseTool):
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
     def _run(self, account_address):
-        balance = Account().get_account_balance(self, account_address)
+        balance = Account().get_account_balance(w3, account_address)
         return balance
 
     def _arun(self, account_address):
@@ -36,7 +36,7 @@ class SendTransactionTool(BaseTool):
     args_schema: Type[BaseModel] = SendTransactionSchema
 
     def _run(self, sender_address, receiver_address, amount):
-        tx = Account().send_transaction(self, sender_address, receiver_address, amount)
+        tx = Account().send_transaction(w3, sender_address, receiver_address, amount)
         return tx
 
     def _arun(self, sender_address, receiver_address, amount):
@@ -55,7 +55,7 @@ class SwapTokenTool(BaseTool):
     args_schema: Type[BaseModel] = SwapTokenSchema
 
     def _run(self, from_token, from_token_amount, to_token):
-        tx = Account().swap_token(self, from_token, from_token_amount, to_token)
+        tx = Account().swap_token(w3, from_token, from_token_amount, to_token)
         return tx
 
     def _arun(self, from_token, from_token_amount, to_token):
