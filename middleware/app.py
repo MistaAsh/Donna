@@ -1,7 +1,7 @@
 from imports import *
 
 # Setting up the Web3 provider
-w3 = Web3(Web3.HTTPProvider(RPC_URL["ethereum"]))
+# w3 = Web3(Web3.HTTPProvider(RPC_URL["ethereum"]))
 
 # Settign up the Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -12,6 +12,13 @@ def is_valid_web3_addresses(addresses):
     #     if not Web3.is_address(address):
     #         return False
     return True
+
+
+def create_web3_provider_modal(network_id):
+    if network_id not in RPC_URL.keys():
+            raise ValueError(f"Chain ID {network_id} not supported")
+    network_rpc_url = RPC_URL[network_id]
+    return Web3(Web3.HTTPProvider(network_rpc_url))
 
 
 def push_to_supabase(output, type, session_id):
@@ -46,18 +53,23 @@ class GetAccountBalanceTool(BaseTool):
         Useful when you want ot get the account balance of the given wallet address in native token or ERC20 token.
         The wallet address is the address of the wallet you want to get the balance of.
         The token_symbol is a set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to get the balance of (If not provided we are using the native token and don't need it as input).
+        The current_network_id is the id of the network you are currently on
     """
 
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
-    def _run(self, account_address, token_symbol):
-        token_address = ERC20_SYMBOL_TO_ADDRESS.get(token_symbol)
+    def _run(self, account_address, token_symbol, current_network_id):
+        # Initalize web3 provider
+        w3 = create_web3_provider_modal(current_network_id)
+        # Get token address
+        token_address = ERC20_SYMBOL_TO_ADDRESS[current_network_id].get(token_symbol)
         if token_address is None:
-            raise ValueError("Invalid token")
+            raise ValueError("Token not supported")
+        # Check if addresses are valid
         if not is_valid_web3_addresses([account_address, token_address]):
             raise ValueError("Invalid account_address or token_address")
         balance = Account().get_account_balance(w3, account_address, token_address)
-        return [balance]
+        return balance
 
     def _arun(self, account_address):
         raise NotImplementedError("get_account_balance does not support async")
@@ -71,25 +83,30 @@ class SendTransactionTool(BaseTool):
         The receiver_address is the address of the wallet you want to send the transaction to.
         The token_symbol is a set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to send (If not provided we are using the native token and don't need it as input).
         The amount is the amount of tokens you want to send.
+        The current_network_id is the id of the network you are currently on
     """
 
     args_schema: Type[BaseModel] = SendTransactionSchema
 
     underlying_session_id: str = None
 
-    def _run(self, sender_address, receiver_address, token_symbol, amount):
-        token_address = ERC20_SYMBOL_TO_ADDRESS.get(token_symbol)
+    def _run(self, sender_address, receiver_address, token_symbol, amount, current_network_id):
+        # Initalize web3 provider
+        w3 = create_web3_provider_modal(current_network_id)
+        # Get token address
+        token_address = ERC20_SYMBOL_TO_ADDRESS[current_network_id].get(token_symbol)
         if token_address is None:
-            raise ValueError("Invalid token")
+            raise ValueError("Token not supported")
+        # Check if addresses are valid
         if not is_valid_web3_addresses(
             [sender_address, receiver_address, token_address]
         ):
-            raise ValueError("Invalid addresses")
+            raise ValueError("Invalid account_address or token_address")
         tx = Account().send_transaction(
             w3, sender_address, receiver_address, token_symbol, token_address, amount
         )
         push_to_supabase(tx, "to_parse", self.underlying_session_id)
-        return [tx]
+        return tx
 
     def _arun(self, sender_address, receiver_address, amount):
         raise NotImplementedError("send_transaction does not support async")
@@ -99,17 +116,31 @@ class SwapTokenTool(BaseTool):
     name = "swap_token"
     description = """
         Useful when you want to swap tokens. That is exchange the tokens I have with some other tokens I want.
+        The account_address is the address of the current wallet.
         The from_token is the name of the token you want to swap.
         The from_token_amount is the amount of the from_token you want to swap.
         The to_token is the name of the token you want to swap to.
+        The current_network_id is the id of the network you are currently on
     """
 
     args_schema: Type[BaseModel] = SwapTokenSchema
 
     underlying_session_id: str = None
 
-    def _run(self, from_token, from_token_amount, to_token):
-        tx = Account().swap_token(w3, from_token, from_token_amount, to_token)
+    def _run(self, account_address, from_token, from_token_amount, to_token, current_network_id):
+        # Initalize web3 provider
+        w3 = create_web3_provider_modal(current_network_id)
+        # Get token address
+        from_token_address = ERC20_SYMBOL_TO_ADDRESS[current_network_id].get(from_token)
+        to_token_address = ERC20_SYMBOL_TO_ADDRESS[current_network_id].get(to_token)
+        if from_token_address is None or to_token_address is None:
+            raise ValueError("Token not supported")
+        # Check if addresses are valid
+        if not is_valid_web3_addresses(
+            [account_address, from_token_address, to_token_address]
+        ):
+            raise ValueError("Invalid account_address or token_address")
+        tx = Account().swap_token(w3, account_address, from_token_address, from_token_amount, to_token_address)
         push_to_supabase(tx, "to_parse", self.underlying_session_id)
         return tx
 

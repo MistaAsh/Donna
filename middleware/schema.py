@@ -12,6 +12,9 @@ class GetAccountBalanceSchema(BaseModel):
     token_symbol: str = Field(
         description="A set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to get the balance of.",
     )
+    current_network_id: str = Field(
+        description="The id of the network you are currently on (number represented as a string)"
+    )
 
 
 class SendTransactionSchema(BaseModel):
@@ -29,6 +32,9 @@ class SendTransactionSchema(BaseModel):
         description="A set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to get the balance of.",
     )
     amount: int = Field(description="The amount of ETH to send")
+    current_network_id: str = Field(
+        description="The id of the network you are currently on (number represented as a string)"
+    )
 
 
 class SwapTokenSchema(BaseModel):
@@ -36,11 +42,17 @@ class SwapTokenSchema(BaseModel):
     Input for swap_token
     """
 
+    account_address: str = Field(
+        description="The address of the account to get the balance of"
+    )
     from_token: str = Field(description="The name of the token that you want to swap")
     from_token_amount: int = Field(
         description="The amount of the from_token that you want ot swap"
     )
     to_token: str = Field(description="The name of the token that you want to swap to")
+    current_network_id: str = Field(
+        description="The id of the network you are currently on (number represented as a string)"
+    )
 
 
 class CheckSocialFollowersSchema(BaseModel):
