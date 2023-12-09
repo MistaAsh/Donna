@@ -14,6 +14,9 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
+# Airstack Constants
+AIRSTACK_API_KEY = os.environ.get("AIRSTACK_API_KEY")
+
 # ChatGPT System Prompt
 SYSTEM_MESSAGE = SystemMessage(
     content="""
@@ -24,3 +27,14 @@ SYSTEM_MESSAGE = SystemMessage(
     """
 )
 AGENT_KWARGS = {"system_message": SYSTEM_MESSAGE}
+
+RPC_URL = {
+    "ethereum": "https://cloudflare-eth.com",
+    "goerli": "https://goerli.drpc.org/",
+    "optimism": "https://mainnet.optimism.io",
+    "gnosis": "https://gnosis.drpc.org/",
+    "polygon": "https://polygon-rpc.com/",
+    "mumbai": "https://polygon-mumbai.drpc.org/",
+    "mantle": "https://mantle-testnet.drpc.org/",
+    "arbitrum": "https://arbitrum.drpc.org/",
+}

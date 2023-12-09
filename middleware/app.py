@@ -1,7 +1,7 @@
 from imports import *
 
 # Setting up the Web3 provider
-w3 = Web3(Web3.HTTPProvider(WEB3_HTTP_PROVIDER_URI))
+w3 = Web3(Web3.HTTPProvider(RPC_URL["ethereum"]))
 
 # Settign up the Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -23,18 +23,26 @@ def push_to_supabase(output, type, session_id):
     except Exception as e:
         return jsonify(message="Error in inserting to Supabase"), 400
 
+executor = ThreadPoolExecutor()
+
+def run_async(async_func):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(async_func)
+
 
 class GetAccountBalanceTool(BaseTool):
     name = "get_account_balance"
     description = """
-        Useful when you want ot get the account balance of the given wallet address in ETH.
+        Useful when you want ot get the account balance of the given wallet address in native token or ERC20 token.
         The wallet address is the address of the wallet you want to get the balance of.
+        The token_address is the address of the token you want to get the balance of (If not provided we are using the native token and don't need it as input).
     """
 
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
-    def _run(self, account_address):
-        balance = Account().get_account_balance(w3, account_address)
+    def _run(self, account_address, token_address=None):
+        balance = Account().get_account_balance(w3, account_address, token_address)
         return balance
 
     def _arun(self, account_address):
@@ -84,6 +92,47 @@ class SwapTokenTool(BaseTool):
     def _arun(self, from_token, from_token_amount, to_token):
         raise NotImplementedError("swap_token does not support async")
 
+class CheckSocialFollowersTool(BaseTool):
+    name = "check_social_followers"
+    description = """
+        Useful when you want to check the number of followers on Web3 social media platforms like Lens or Fancaster for a particular user or address.
+        The social_media_platform is the name of the social media platform you want to check.
+        The social_media_handle is the handle of the account you want to check.
+    """
+
+    args_schema: Type[BaseModel] = CheckSocialFollowersSchema
+
+    underlying_session_id: str = None
+
+    def _run(self, social_media_platform, social_media_handle):
+        future = executor.submit(run_async, Socials().check_social_followers(social_media_platform, social_media_handle))
+        followers = future.result()
+        return followers
+        
+
+
+    def _arun(self, social_media_platform, social_media_handle):
+        raise NotImplementedError("check_social_followers only supports async")
+
+class GetENSDomainTool(BaseTool):
+    name = "get_ens_domain"
+    description = """
+        Useful when you want to get the ens domain of a particular address.
+        The address is the address you want to get the ens domain of.
+    """
+
+    args_schema: Type[BaseModel] = GetENSDomainSchema
+
+    underlying_session_id: str = None
+
+    def _run(self, address):
+        future = executor.submit(run_async, Socials().get_ens_domain(address))
+        followers = future.result()
+        return followers
+
+    def _arun(self, address):
+        raise NotImplementedError("get_ens_domain does not support async")
+    
 
 # Setting up the Flask app
 app = Flask(__name__)
@@ -114,13 +163,15 @@ def generate_output():
     if data["session_id"] is None or data["session_id"] == "":
         return jsonify(message="No Chat ID"), 400
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
 
     # Initialize Agent
     tools = [
         GetAccountBalanceTool(),
         SendTransactionTool(underlying_session_id = data["session_id"]),
         SwapTokenTool(underlying_session_id = data["session_id"]),
+        CheckSocialFollowersTool(underlying_session_id = data["session_id"]),
+        GetENSDomainTool(underlying_session_id = data["session_id"]),   
     ]
     agent = initialize_agent(
         tools,

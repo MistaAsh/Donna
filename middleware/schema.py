@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 
-
 class GetAccountBalanceSchema(BaseModel):
     """
     Input for get_account_balance
@@ -8,7 +7,10 @@ class GetAccountBalanceSchema(BaseModel):
     account_address: str = Field(
         description="The address of the account to get the balance of"
     )
-
+    token_address: str = Field(
+        default=None,
+        description="The contract address of the token to get the balance of. (can be None if you want to get the Native token balance))"
+    )
 
 class SendTransactionSchema(BaseModel):
     """
@@ -35,4 +37,23 @@ class SwapTokenSchema(BaseModel):
     )
     to_token: str = Field(
         description="The name of the token that you want to swap to"
+    )
+
+class CheckSocialFollowersSchema(BaseModel):
+    """
+    Input for check_social_followers
+    """
+    social_media_platform: str = Field(
+        description="The name of the social media platform to check the followers of"
+    )
+    social_media_handle: str = Field(
+        description="The username of the account to check the followers of"
+    )
+
+class GetENSDomainSchema(BaseModel):
+    """
+    Input for get_ens_domain
+    """
+    address: str = Field(
+        description="The address to get the ens domain of"
     )
