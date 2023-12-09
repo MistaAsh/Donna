@@ -65,8 +65,8 @@ const ChatWindow = () => {
   }, [supabase]);
 
   return (
-    <div className="flex flex-col justify-between bg-black h-screen mx-[300px]">
-      <div className="overflow-y-auto flex flex-col gap-3.5">
+    <div className="flex flex-col justify-between bg-black h-screen mx-[300px] rounded-2xl">
+      <div className="overflow-y-auto flex flex-col gap-3.5 rounded-2xl">
         <Header />
         <div className="flex flex-col-reverse flex-grow p-5 overflow-y-scroll">
           {messages.map(({ type, content }) =>
