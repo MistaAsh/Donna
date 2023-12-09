@@ -1,7 +1,11 @@
+'use client'
+
+
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import UserMessage from "./UserMessage";
 import BotMessage from "./BotMessage";
+import ParseMessage from "./ParseMessage";
 import ChatBox from "./ChatBox";
 import Header from "./Header";
 
@@ -65,16 +69,14 @@ const ChatWindow = () => {
   }, [supabase]);
 
   return (
-    <div className="flex flex-col justify-between bg-black h-screen mx-[300px]">
-      <div className="overflow-y-auto flex flex-col gap-3.5">
+    <div className="flex flex-col justify-between min-h-screen px-[300px] bg-[#faf9f9]">
+      <div className="flex flex-col bg-white gap-3.5">
         <Header />
-        <div className="flex flex-col-reverse flex-grow p-5 overflow-y-scroll">
+        <div className="flex flex-col-reverse flex-grow p-5 bg-white overflow-y-scroll h-[78vh]">
           {messages.map(({ type, content }) =>
-            type === "bot" ? (
-              <BotMessage message={content} />
-            ) : (
-              <UserMessage message={content} />
-            ),
+            (type === "bot" && <BotMessage message={content} />) ||
+            (type === "user" && <UserMessage message={content} />) ||
+            (type === "to_parse" && <ParseMessage message={content} />),
           )}
         </div>
       </div>

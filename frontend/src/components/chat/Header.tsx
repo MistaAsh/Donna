@@ -1,14 +1,15 @@
 // components/Header.js
 import { useRouter } from "next/router";
+import { ConnectWallet } from "@thirdweb-dev/react";
 import Link from "next/link";
 
 const Header = () => {
   const router = useRouter();
 
   return (
-    <header className="bg-black text-white p-4 border-b-slate-600 border-b-[1px]">
-      <div className="flex items-center">
-        <div className="mr-4">
+    <header className="flex flex-row items-center justify-between px-4 py-6 border-b-slate-600 border-b-[1px]">
+      <div className="flex flex-row items-center">
+        <div className="mr-3">
           {/* Back button leading to '/' */}
           <Link href="/">
             <svg
@@ -16,7 +17,7 @@ const Header = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              className="h-6 w-6"
+              className="h-8 w-8"
             >
               <path
                 strokeLinecap="round"
@@ -25,10 +26,19 @@ const Header = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back
           </Link>
         </div>
-        <h1 className="text-xl font-bold ml-3">Chat with Your Wallet</h1>
+        <h1 className="text-2xl font-bold ml-1">Chat With Your Wallet</h1>
+      </div>
+      <div className="">
+        <ConnectWallet
+          dropdownPosition={{
+            side: "bottom",
+            align: "center",
+          }}
+          theme="light"
+          className="bg-[#e9e6e6] text-gray-700"
+        />
       </div>
     </header>
   );
