@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     try {
       // Perform any processing you need with content and sessionId
       // For example, make another request to a different API
-      const result = await axios.get(`http://localhost:3001/?url=https://api.1inch.dev/fusion/quoter/v1.0/${chainId}/quote/receive/?fromTokenAddress=${fromTokenAddress}%26toTokenAddress=${toTokenAddress}%26amount=${amount}%26walletAddress=${address}%26source=sdk`, {
+      const result = await axios.get(`http://localhost:3001/quote/?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&walletAddress=${address}&source=sdk`, {
         data: {},
       });
 
