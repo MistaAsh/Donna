@@ -38,6 +38,7 @@ export default function Home() {
               side: "bottom",
               align: "center",
             }}
+            theme="light"
           />
         </div>
       </div>
