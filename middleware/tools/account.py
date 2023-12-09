@@ -1,4 +1,6 @@
+from web3 import Web3
 import json
+
 
 class Account:
     """
@@ -11,28 +13,33 @@ class Account:
         """
         error, payload = False, {}
         try:
-            if token_address:
-                with open('../middleware/abi/erc20.abi.json', 'r') as abi_file:
+            if token_address != "ETH":
+                with open("../middleware/abi/erc20.abi.json", "r") as abi_file:
                     ERC20_ABI = json.load(abi_file)
-                # Create a contract instance for the ERC20 token
-                token_contract = w3.eth.contract(address=token_address, abi=ERC20_ABI)
-                # Get token balance
-                balance = token_contract.functions.balanceOf(account_address).call()
-                balance_symbol = token_contract.functions.symbol().call()  # To get the token symbol
+                token_contract = w3.eth.contract(
+                    address=Web3.to_checksum_address(token_address), abi=ERC20_ABI
+                )
+
+                balance = token_contract.functions.balanceOf(
+                    Web3.to_checksum_address(account_address)
+                ).call()
+                balance_symbol = token_contract.functions.symbol().call()
             else:
-                # Get ETH balance
-                balance = w3.eth.get_balance(account_address)/10**18
-                balance_symbol = 'ETH'
+                balance = w3.eth.get_balance(account_address) / 10**18
+                balance_symbol = "ETH"
 
-            payload = {"account_address": account_address, "balance": balance, "currency": balance_symbol}
-
+            payload = {
+                "account_address": account_address,
+                "balance": balance / (10**6),
+                "currency": balance_symbol,
+            }
         except Exception as e:
             error = e
             print(e)
 
         return {
             "get_account_balance": {"error": error, "payload": payload},
-            }
+        }
 
     def send_transaction(self, w3, sender_address, receiver_address, amount):
         """

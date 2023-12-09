@@ -2,7 +2,6 @@ from tools.account import Account
 from tools.socials import Socials
 from constants import *
 from schema import *
-import asyncio
 
 from flask import Flask, jsonify, request
 from pydantic import BaseModel
@@ -17,4 +16,4 @@ from langchain.chat_models import ChatOpenAI
 from langchain.tools import BaseTool
 
 from airstack.execute_query import AirstackClient
-import json
+import json, asyncio
