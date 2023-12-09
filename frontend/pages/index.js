@@ -1,4 +1,4 @@
-import { ConnectWallet, useAddress, useNetwork } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useChainId } from "@thirdweb-dev/react";
 import { useBalance } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { useState } from "react";
@@ -23,7 +23,20 @@ const ActiveButton = ({ activeTab, tab, onClick }) => {
 
 export default function Home() {
   const address = useAddress();
-  const network = useNetwork();
+  const chainId = useChainId();
+  let network = 'ethereum';
+  if (chainId === 137) {
+    network = 'polygon';
+  } else if (chainId === 8453) {
+    network = 'base';
+  } else if (chainId === 534352) {
+    network = 'scroll';
+  } else if (chainId === 5000) {
+    network = 'mantle';
+  }
+  console.log('chainId: ', chainId);
+
+
   const { data, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [activeTab, setActiveTab] = useState("tokens");
   const router = useRouter();
@@ -90,13 +103,13 @@ export default function Home() {
           </div>
           <div className="flex flex-row items-center justify-center pt-10 px-6 w-full">
             {activeTab === "tokens" && (
-              <TokensERC20 identity={address} chain="ethereum" />
+              <TokensERC20 identity={address} chain={network} />
             )}
             {activeTab === "transactions" && (
-              <TransactionHistory chainId={1} address={address} />
+              <TransactionHistory chainId={chainId} address={address} />
             )}
             {activeTab === "nfts" && (
-              <TokensNFT identity={address} chain="polygon" />
+              <TokensNFT identity={address} chain={network}/>
             )}
             {activeTab === "contacts" && <Contacts />}
           </div>
