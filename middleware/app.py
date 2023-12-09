@@ -97,10 +97,9 @@ def generate_output():
         data["chat_id"] = int(data["chat_id"])
         chat_id = data["chat_id"]
     except:
-        print("chat_id must be a number")
         return jsonify(message="chat_id must be a number")
 
-    llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
     # Initialize Agent
     tools = [
@@ -131,8 +130,7 @@ def generate_output():
             .execute()
         )
     except Exception as e:
-        print(e, "chat id must be valid")
-        return jsonify(message="chat_id must be valid")
+        return jsonify(message="chat_id does not exist in Supabase"), 400
     return jsonify(message="Success")
 
 
