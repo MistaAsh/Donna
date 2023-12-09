@@ -86,7 +86,7 @@ class SendTransactionTool(BaseTool):
         ):
             raise ValueError("Invalid addresses")
         tx = Account().send_transaction(
-            w3, sender_address, receiver_address, token_address, amount
+            w3, sender_address, receiver_address, token_symbol, token_address, amount
         )
         push_to_supabase(tx, "to_parse", self.underlying_session_id)
         return tx

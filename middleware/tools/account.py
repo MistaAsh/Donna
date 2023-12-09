@@ -30,28 +30,24 @@ class Account:
 
             payload = {
                 "account_address": account_address,
-                "balance": balance / (10**6),
-                "currency": balance_symbol,
+                "balance": str(balance / (10**6)),
+                "token_symbol": balance_symbol,
             }
         except Exception as e:
             error = e
             print(e)
 
-        return {
-            "get_account_balance": {"error": error, "payload": payload},
-        }
+        return {"method": "get_account_balance", "error": error, "payload": payload}
 
     def send_transaction(
-        self, w3, sender_address, receiver_address, token_address, amount
+        self, w3, sender_address, receiver_address, token_symbol, token_address, amount
     ):
         """
         Return a transaction object to the frontend to sign
         """
         error, payload = False, {}
 
-        balance = self.get_account_balance(w3, sender_address, token_address)[
-            "get_account_balance"
-        ]["payload"]["balance"]
+        balance = float(self.get_account_balance(w3, sender_address, token_address)["payload"]["balance"])
         if balance < amount:
             error = "Insufficient funds"
         else:
@@ -60,6 +56,7 @@ class Account:
                     "from": sender_address,
                     "to": receiver_address,
                     "value": w3.to_wei(amount, "ether"),
+                    "token_symbol": token_symbol,
                     # "gas": 2000000,
                     # "gasPrice": w3.toWei("50", "gwei")
                 }
@@ -67,7 +64,7 @@ class Account:
             except Exception as e:
                 error = e
                 print(e)
-        return {"send_transaction": {"error": error, "payload": payload}}
+        return {"method": "send_transaction", "error": error, "payload": payload}
 
     # TODO: Identify the parameters to swap_token on the frontend and send the required from the backend
     def swap_token(self, w3, from_token, from_token_amount, to_token):
@@ -89,4 +86,4 @@ class Account:
         except Exception as e:
             error = e
             print(e)
-        return {"swap_token": {"error": error, "payload": payload}}
+        return {"method": "swap_token", "error": error, "payload": payload}
