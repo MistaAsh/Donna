@@ -30,7 +30,7 @@ async function getQuoteWrapper(fromTokenAddress, toTokenAddress, amount, walletA
         url: "https://api.1inch.dev/fusion",
         network: NetworkEnum.POLYGON,
         blockchainProvider,
-        authKey: 'Bloa3LbSjUJzNGi4amk9yzzfrEFZslxg' // Replace with actual auth key
+        authKey: 'ZI7mFBr0tSKeGpyLdqV5RdJMntRjYDRJ' // Replace with actual auth key
     });
 
     // Call getQuote with the provided parameters
