@@ -43,7 +43,7 @@ class Account:
             tx = {
                 "from": sender_address,
                 "to": receiver_address,
-                "value": w3.toWei(amount, "ether"),
+                "value": w3.to_wei(amount, "ether"),
                 # "gas": 2000000,
                 # "gasPrice": w3.toWei("50", "gwei")
             }
