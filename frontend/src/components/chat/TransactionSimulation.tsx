@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { useChainId } from "@thirdweb-dev/react";
 import { ethers } from 'ethers';
+
+const chainIdLinkMapping = {
+    1: 'https://eth-mainnet.g.alchemy.com/v2/sZxThjTQPsozxGRWdM6rvaSLiKAL6-kh',
+    84532: 'https://base-mainnet.g.alchemy.com/v2/eYiwU232OAwjYKZQrKWshJ-4hIdr-mj3',
+    137: 'https://polygon-mainnet.g.alchemy.com/v2/KVgK4nBEuq3n90EzFAKWgUbcHBTEzqHv',
+    80001: 'https://polygon-mumbai.g.alchemy.com/v2/MmJ-scazZpKa-Rr2QkDFzfdYpScIQeN2'
+}
 
 const TransactionSimulation = ({ transaction }) => {
     const [changes, setChanges] = useState([]);
     const [error, setError] = useState(null);
+    const chainId = useChainId();
 
     const getChanges = async () => {
-        const amountInWei = '10';
-        const amountInWeiBN = ethers.utils.parseUnits(amountInWei, 'ether');
+        const amountInWei = transaction.value;
+        const amountInWeiBN = ethers.utils.parseUnits(amountInWei, 'wei');
         console.log(amountInWeiBN)
         const amountHash = amountInWeiBN.toHexString();
         const options = {
@@ -19,16 +28,15 @@ const TransactionSimulation = ({ transaction }) => {
                 method: 'alchemy_simulateAssetChanges',
                 params: [
                     {
-                        from: '0x857346484B617EefB237a9A717c600fa6431a31f',
-                        to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+                        from: transaction.from,
+                        to: transaction.to,
                         value: amountHash,
-                        // data: '0xa9059cbb000000000000000000000000fc43f5f9dd45258b3aff31bdbe6561d97e8b71de00000000000000000000000000000000000000000000000000000000000f4240'
                     }
                 ]
             })
         };
 
-        fetch('https://eth-mainnet.g.alchemy.com/v2/sZxThjTQPsozxGRWdM6rvaSLiKAL6-kh', options)
+        fetch(chainIdLinkMapping[chainId], options)
             .then(response => response.json())
             .then(response => {
                 console.log(response)
@@ -48,21 +56,26 @@ const TransactionSimulation = ({ transaction }) => {
     return (
         <div className="max-w-md mx-auto mt-4 px-4 bg-white rounded-md shadow-md self-start">
             {changes.map((change, index) => (
-                <div key={index} className="mb-2 pt-1 pb-1 border-b-[1px]">
-                    <div className='flex'>
-                        <img src={change.logo} alt={`${change.symbol} logo`} className="w-8 h-8 mt-2" />
-                        <div className='flex flex-col m-2'>
-                            <p className="text-gray-600">Sent To</p>
-                            <p className="text-gray-400 text-xs">{change.to}</p>
+                <div key={index} className="mb-2 py-2 px-1 border-b border-gray-300">
+                    <div className='flex items-center justify-between gap-5'>
+                        <div className='flex'>
+                            <img src={change.logo} alt={`${change.symbol} logo`} className="w-8 h-8 mr-2" />
+                            <div className='flex flex-col'>
+                                <p className="text-gray-600 self-start">Sent To</p>
+                                <p className="text-gray-400 text-xs">{change.to.slice(0, 4)}...{change.to.slice(-4)}</p>
+                            </div>
                         </div>
-                        <p className="flex text-green-500 text-sm items-center ml-2">{change.amount} {change.symbol}</p>
+                        <p className="text-green-500 text-sm ml-auto">{change.amount} {change.symbol}</p>
                     </div>
                 </div>
             ))}
-            <div className="mb-2 pt-1 pb-1 border-b-[1px]">
-                {error && <p className="text-red-500 text-sm">{error.message}{": "}{error.revertReason}</p>}
-            </div>
-        </div >
+            {
+                error &&
+                (<div className="mb-2 pt-1 pb-1 border-b border-gray-300">
+                    <p className="text-red-500 text-sm">{error.message}: {error.revertReason}</p>
+                </div>)
+            }
+        </div>
     );
 };
 
