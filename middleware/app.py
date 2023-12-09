@@ -51,7 +51,6 @@ class GetAccountBalanceTool(BaseTool):
     args_schema: Type[BaseModel] = GetAccountBalanceSchema
 
     def _run(self, account_address, token_symbol):
-        print(token_symbol)
         token_address = ERC20_SYMBOL_TO_ADDRESS.get(token_symbol)
         if token_address is None:
             raise ValueError("Invalid token")
@@ -70,17 +69,25 @@ class SendTransactionTool(BaseTool):
         Useful when you want to send a transaction from one wallet address to another. 
         The sender_address is the address of the wallet you want to send the transaction from.
         The receiver_address is the address of the wallet you want to send the transaction to.
-        The amount is the amount of ETH you want to send.
+        The token_symbol is a set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to send (If not provided we are using the native token and don't need it as input).
+        The amount is the amount of tokens you want to send.
     """
 
     args_schema: Type[BaseModel] = SendTransactionSchema
 
     underlying_session_id: str = None
 
-    def _run(self, sender_address, receiver_address, amount):
-        if not is_valid_web3_addresses([sender_address, receiver_address]):
-            raise ValueError("Invalid sender_address or receiver_address")
-        tx = Account().send_transaction(w3, sender_address, receiver_address, amount)
+    def _run(self, sender_address, receiver_address, token_symbol, amount):
+        token_address = ERC20_SYMBOL_TO_ADDRESS.get(token_symbol)
+        if token_address is None:
+            raise ValueError("Invalid token")
+        if not is_valid_web3_addresses(
+            [sender_address, receiver_address, token_address]
+        ):
+            raise ValueError("Invalid addresses")
+        tx = Account().send_transaction(
+            w3, sender_address, receiver_address, token_address, amount
+        )
         push_to_supabase(tx, "to_parse", self.underlying_session_id)
         return tx
 

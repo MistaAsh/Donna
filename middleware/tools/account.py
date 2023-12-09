@@ -7,7 +7,7 @@ class Account:
     Middleware to handle account related requests
     """
 
-    def get_account_balance(self, w3, account_address, token_address=None):
+    def get_account_balance(self, w3, account_address, token_address):
         """
         Get the balance of the account in ETH
         """
@@ -41,23 +41,32 @@ class Account:
             "get_account_balance": {"error": error, "payload": payload},
         }
 
-    def send_transaction(self, w3, sender_address, receiver_address, amount):
+    def send_transaction(
+        self, w3, sender_address, receiver_address, token_address, amount
+    ):
         """
         Return a transaction object to the frontend to sign
         """
         error, payload = False, {}
-        try:
-            tx = {
-                "from": sender_address,
-                "to": receiver_address,
-                "value": w3.to_wei(amount, "ether"),
-                # "gas": 2000000,
-                # "gasPrice": w3.toWei("50", "gwei")
-            }
-            payload = tx
-        except Exception as e:
-            error = e
-            print(e)
+
+        balance = self.get_account_balance(w3, sender_address, token_address)[
+            "get_account_balance"
+        ]["payload"]["balance"]
+        if balance < amount:
+            error = "Insufficient funds"
+        else:
+            try:
+                tx = {
+                    "from": sender_address,
+                    "to": receiver_address,
+                    "value": w3.to_wei(amount, "ether"),
+                    # "gas": 2000000,
+                    # "gasPrice": w3.toWei("50", "gwei")
+                }
+                payload = tx
+            except Exception as e:
+                error = e
+                print(e)
         return {"send_transaction": {"error": error, "payload": payload}}
 
     # TODO: Identify the parameters to swap_token on the frontend and send the required from the backend
