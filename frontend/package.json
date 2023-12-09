@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@airstack/airstack-react": "^0.6.1",
+    "@dicebear/collection": "^7.0.1",
+    "@dicebear/core": "^7.0.1",
+    "@mui/material": "^5.14.20",
     "@supabase/supabase-js": "^2.39.0",
     "@thirdweb-dev/react": "^4",
     "@thirdweb-dev/sdk": "^4",
