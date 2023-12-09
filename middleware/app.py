@@ -57,7 +57,7 @@ class GetAccountBalanceTool(BaseTool):
         if not is_valid_web3_addresses([account_address, token_address]):
             raise ValueError("Invalid account_address or token_address")
         balance = Account().get_account_balance(w3, account_address, token_address)
-        return balance
+        return [balance]
 
     def _arun(self, account_address):
         raise NotImplementedError("get_account_balance does not support async")
@@ -89,7 +89,7 @@ class SendTransactionTool(BaseTool):
             w3, sender_address, receiver_address, token_symbol, token_address, amount
         )
         push_to_supabase(tx, "to_parse", self.underlying_session_id)
-        return tx
+        return [tx]
 
     def _arun(self, sender_address, receiver_address, amount):
         raise NotImplementedError("send_transaction does not support async")

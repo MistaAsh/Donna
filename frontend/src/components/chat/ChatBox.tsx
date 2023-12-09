@@ -1,6 +1,7 @@
 // ChatBox.jsx
 import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useAddress } from "@thirdweb-dev/react";
 
 const ChatBox = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -9,6 +10,10 @@ const ChatBox = () => {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbG9kcGxoc3NjdmZoeGZnaWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIwNjM3MjIsImV4cCI6MjAxNzYzOTcyMn0.Y41Q9wTAHmPf9sH4DAUL56Z_O1RneJmH_aZPHGH_-DY"
   );
   const [inputValue, setInputValue] = useState("");
+
+  const InputProcessor = (inputValue: string) => {
+    inputValue.concat(`\n My address is ${useAddress()}`);
+  }
 
   const handleSubmit = async (event) => {
     setIsLoading(true);
@@ -24,26 +29,17 @@ const ChatBox = () => {
         throw error;
       }
 
-      // Send to the middleware
-      await fetch(`/api/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: inputValue, sessionId }),
-      });
-      console.log('message sent')
+    // Send to the middleware
+    const data = await fetch(`/api/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: InputProcessor(inputValue), sessionId }),
+    });
 
-      // Send to the middleware
-      const data = await fetch(`/api/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: inputValue, sessionId }),
-      });
+    console.log(data);
 
-      console.log(data);
     } catch (err) {
       console.error("Error in handleSubmit:", err.message);
     } finally {
