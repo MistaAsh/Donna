@@ -11,9 +11,8 @@ import { useRouter } from 'next/router';
 const ActiveButton = ({ activeTab, tab, onClick }) => {
   return (
     <button
-      className={`w-1/4 py-2 hover:border-b-2 ${
-        activeTab === tab.toLowerCase() && "border-b-2"
-      }`}
+      className={`w-1/4 py-2 text-md font-semibold hover:border-b-2 hover:border-b-gray-300 ${activeTab === tab.toLowerCase() && "border-b-2 border-b-gray-300"
+        }`}
       onClick={onClick}
     >
       {tab}
@@ -30,15 +29,19 @@ export default function Home() {
   if (!address) {
     return (
       <div className="bg-[#F8F8F8] h-screen px-[300px] flex flex-col items-center justify-center gap-6">
-        <div>Logo</div>
-        <div>Chat With Donna</div>
+        <img
+          src={"/images/logo.png"}
+          alt={"Logo"}
+          className="h-48 w-48 rounded-full"
+        />
+        <div className="text-4xl pb-2 font-bold">Chat With Donna</div>
         <div>
           <ConnectWallet
             dropdownPosition={{
               side: "bottom",
               align: "center",
             }}
-            theme="light"
+            className="bg-[#e9e6e6] text-gray-700"
           />
         </div>
       </div>
@@ -49,7 +52,7 @@ export default function Home() {
     <div className="bg-[#F8F8F8] min-h-screen">
       <div className="bg-white mx-[300px] min-h-screen pt-10 pb-10 flex flex-col items-center gap-6">
         <div
-          className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-black text-white p-3 rounded-md"
+          className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-black text-white px-5 py-3 rounded-lg font-semibold"
           onClick={() => router.push('/chat')}
         >
           Chat with Donna
@@ -60,10 +63,9 @@ export default function Home() {
               side: "bottom",
               align: "center",
             }}
+            theme="light"
+            className="bg-[#e9e6e6] text-gray-700"
           />
-        </div>
-        <div>
-          {data?.displayValue} {data?.name}
         </div>
         <div className="w-full py-2">
           <div className="flex flex-start justify-between items-center w-full">

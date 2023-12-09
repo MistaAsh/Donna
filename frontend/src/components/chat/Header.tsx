@@ -29,6 +29,11 @@ const Header = () => {
           </Link>
         </div>
         <h1 className="text-2xl font-bold ml-1">Chat With Your Wallet</h1>
+        <img
+          src={"/images/logo.png"}
+          alt={"Logo"}
+          className="h-16 w-16 pl-3 rounded-full"
+        />
       </div>
       <div className="">
         <ConnectWallet
