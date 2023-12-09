@@ -44,7 +44,7 @@ export default function Home() {
 
   if (!address) {
     return (
-      <div className="bg-[#F8F8F8] px-[300px] flex flex-col items-center justify-center h-[100vh] gap-6">
+      <div className="bg-[#F8F8F8] h-screen px-[300px] flex flex-col items-center justify-center gap-6">
         <div>Logo</div>
         <div>Donna</div>
         <div>
@@ -60,8 +60,8 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-[#F8F8F8] h-[100vh]">
-      <div className="bg-white mx-[300px] h-[100vh] pt-10 flex flex-col items-center gap-6">
+    <div className="bg-[#F8F8F8] min-h-screen">
+      <div className="bg-white mx-[300px] min-h-screen pt-10 pb-10 flex flex-col items-center gap-6">
         <div>Donna</div>
         <div>
           <ConnectWallet

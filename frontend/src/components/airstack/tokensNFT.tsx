@@ -53,28 +53,30 @@ const TokensNFT = ({ identity, chain }) => {
     {},
     { cache: false },
   );
+
   if (loading || !data) {
     return <p>Loading...</p>;
   }
-  if (error) {
-    return <p>Error: {error.message}</p>;
+
+  if (!data?.TokenBalances || !data?.TokenBalances.TokenBalance) {
+    return <p>No NFTs found</p>;
   }
 
-  console.log(data);
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  } 
 
   return (
-    <div className="flex flex-wrap justify-center">
-      {data.TokenBalances.TokenBalance.map((token, index) =>
-        token.tokenNfts.contentValue.image &&
-        token.tokenNfts.contentValue.image.small ? (
-          <div key={index} className="p-4">
-            <img
-              src={token.tokenNfts.contentValue.image.small}
-              alt={`NFT ${token.tokenId}`}
-              className="rounded-lg shadow-lg"
-            />
-          </div>
-        ) : null,
+    <div className="flex flex-wrap justify-center overflow-y-auto h-full">
+      {data?.TokenBalances?.TokenBalance?.map((token, index) => (
+        <div key={index} className="p-4">
+          <img
+            src={token?.tokenNfts?.contentValue?.image?.small || "/images/alt-nft.png"}
+            alt={`NFT ${token.tokenId}`}
+            className="h-52 w-52 rounded-lg shadow-lg"
+          />
+        </div>
+      )
       )}
     </div>
   );
