@@ -1,8 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
-import { useAddress, useChainId, useContract } from "@thirdweb-dev/react";
+import { useAddress, useChainId } from "@thirdweb-dev/react";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
+import { useContractRead, useContractWrite, useContract, Web3Button } from "@thirdweb-dev/react";
+import { SwapWidget } from '@uniswap/widgets'
+import '@uniswap/widgets/fonts.css'
+
+// Address that will be approved to spend tokens
 
 const style = {
   position: 'absolute',
@@ -20,117 +25,21 @@ const SwapModal = () => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const { contract, isLoading, error } = useContract("", [
-    {
-      constant: true,
-      inputs: [
-        {
-          name: '',
-          type: 'address'
-        }
-      ],
-      name: 'balanceOf',
-      stateMutability: 'view',
-      outputs: [
-        {
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      payable: false,
-      type: 'function'
-    },
-    {
-      constant: true,
-      inputs: [
-        {
-          name: '',
-          type: 'address'
-        },
-        {
-          name: '',
-          type: 'address'
-        }
-      ],
-      name: 'allowance',
-      stateMutability: 'view',
-      outputs: [
-        {
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      payable: false,
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          name: '',
-          type: 'address'
-        },
-        {
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      name: 'approve',
-      outputs: [],
-      payable: false,
-      type: 'function'
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'decimals',
-      outputs: [
-        {
-          name: '',
-          type: 'uint8'
-        }
-      ],
-      payable: false,
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'symbol',
-      outputs: [
-        {
-          name: '',
-          type: 'string'
-        }
-      ],
-      payable: false,
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'name',
-      outputs: [
-        {
-          name: '',
-          type: 'string'
-        }
-      ],
-      payable: false,
-      stateMutability: 'view',
-      type: 'function'
-    }
-  ]);
-
-  const address = useAddress();
+  const spenderAddress = '0x1111111254EEB25477B68fb85Ed929f73A960582'
+  const userAddress = useAddress();
   const chainId = useChainId();
   const [fromTokenAddress, setFromTokenAddress] = useState('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270')
   const [toTokenAddress, setToTokenAddress] = useState('0xc2132D05D31c914a87C6611C10748AEb04B58e8F')
   const [amount, setAmount] = useState('100000000000000000000')
-
+  const [allowance, setAllowance] = useState(null);
+  const [isApproved, setIsApproved] = useState(false);
+  const [isAllowanceLoading, setIsAllowanceLoading] = useState(false);
   const [fusionApiData, setFusionApiData] = useState()
+  // Use the native token of the connected chain as the default input token
+  const NATIVE = 'NATIVE' // Special address for native token
 
+  // WBTC as the default output token
+  const WBTC = '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6'
   // call this url to get the data every 10 seconds
   useEffect(() => {
     try {
@@ -140,7 +49,7 @@ const SwapModal = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ fromTokenAddress, toTokenAddress, amount, address, chainId }),
+          body: JSON.stringify({ fromTokenAddress, toTokenAddress, amount, userAddress, chainId }),
         })
           .then((res) => res.json())
           .then((data) => {
@@ -157,16 +66,72 @@ const SwapModal = () => {
     } catch (error) {
       console.log(error)
     }
-  }, [fromTokenAddress, toTokenAddress, amount, address, chainId]);
+  }, [fromTokenAddress, toTokenAddress, amount, userAddress, chainId]);
 
   const handleSwap = async () => {
-    // await contract?.call("approve", [fusionApiData?.routerAddress, fusionApiData?.fromTokenAmount], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
-    const data = contract?.call("balanceOf", [address], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+  //   // await contract?.call("approve", [fusionApiData?.routerAddress, fusionApiData?.fromTokenAmount], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
+  //   const data = contract?.call("balanceOf", [address], { value: 0, gasLimit: 1000000, gasPrice: 10000000000 })
   }
+
+  const { contract } = useContract(fromTokenAddress);
+
+  const { mutateAsync, isLoading, error } = useContractWrite(contract, "approve");
+
+  useEffect(() => {
+    const fetchAllowance = async () => {
+      if (userAddress && spenderAddress) {
+        setIsAllowanceLoading(true);
+        try {
+          const result = await contract.call("allowance", [userAddress, spenderAddress]);
+          setAllowance(result);
+        } catch (error) {
+          console.error("Error fetching allowance:", error);
+        }
+        setIsAllowanceLoading(false);
+      }
+    };
+
+    fetchAllowance();
+  }, [userAddress, spenderAddress, contract]);
+
+  useEffect(() => {
+    if (allowance && parseInt(allowance) > 10000) {
+      setIsApproved(true);
+    }
+    else {
+      setIsApproved(false);
+    }
+    console.log(parseInt(allowance), 'allowance')
+  }, [allowance]);
+
+
+  const handleApprove = async () => {
+    const amountToApprove = "100000000000000000000"; // Example: 1 token
+
+    try {
+      await mutateAsync({ args: [spenderAddress, amountToApprove] });
+      console.log("Approval successful");
+    } catch (e) {
+      console.error("Error in approval:", e);
+    }
+  };
+
+  if (!userAddress || isAllowanceLoading) {
+    return <div>Loading...</div>;
+  }
+
+
+  // const isApproved = allowance && parseInt(allowance) > 0;
 
   return (
     <>
       <button className="py-2 px-3 bg-white mx-3 rounded-lg" onClick={handleOpen}>Swap</button>
+      <div className="Uniswap">
+        <SwapWidget 
+          defaultInputTokenAddress={NATIVE}
+          defaultInputAmount={2}
+          defaultOutputTokenAddress={WBTC} />
+      </div>
       <Modal
         open={open}
         onClose={handleClose}
@@ -228,22 +193,33 @@ const SwapModal = () => {
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Auction Start Amount</span>
-                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionStartAmount}</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionStartAmount/10**6}</span>
               </div>
               <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Auction End Amount</span>
-                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionEndAmount}</span>
+                <span className="font-bold">{fusionApiData?.presets?.fast?.auctionEndAmount/10**6}</span>
               </div>
               {/* <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Minimum receive</span>
                 <span className="font-bold">0.859014 USDT</span>
               </div> */}
-              <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
+              {/* <div className="flex text-sm text-gray-600 font-semibold flex-row items-center justify-between">
                 <span className="">Network Fee</span>
                 <span className="font-bold">{fusionApiData?.gas / 10 ** 6}</span>
-              </div>
+              </div> */}
             </div>
-            <button className="bg-[#adaaaa] py-2.5 rounded-md text-white text-lg font-semibold" onClick={handleSwap}>Swap</button>
+            {/* <button className="bg-[#adaaaa] py-2.5 rounded-md text-white text-lg font-semibold" onClick={handleSwap} disable={true} >Swap</button> */}
+            {isApproved && false ? (
+        <div>Done, bro! Tokens already approved.</div>
+            ) : (
+              <Web3Button
+                contractAddress={fromTokenAddress}
+                action={handleApprove}
+                disabled={isLoading}
+              >
+                Approve Tokens
+              </Web3Button>
+            )}
           </div>
         </Box>
       </Modal>

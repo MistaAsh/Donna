@@ -6,7 +6,7 @@ import { AirstackProvider, useQuery } from "@airstack/airstack-react";
 // This is the chain your dApp will work on.
 // Change this to the chain your app is built for.
 // You can also import additional chains from `@thirdweb-dev/chains` and pass them directly.
-const activeChain = "ethereum";
+const activeChain = "polygon";
 init(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY);
 
 function MyApp({ Component, pageProps }) {
