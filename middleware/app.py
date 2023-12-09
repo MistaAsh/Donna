@@ -107,13 +107,32 @@ class CheckSocialFollowersTool(BaseTool):
     def _run(self, social_media_platform, social_media_handle):
         future = executor.submit(run_async, Socials().check_social_followers(social_media_platform, social_media_handle))
         followers = future.result()
-        print("test123", followers, followers)
         return followers
         
 
 
     def _arun(self, social_media_platform, social_media_handle):
         raise NotImplementedError("check_social_followers only supports async")
+
+class GetENSDomainTool(BaseTool):
+    name = "get_ens_domain"
+    description = """
+        Useful when you want to get the ens domain of a particular address.
+        The address is the address you want to get the ens domain of.
+    """
+
+    args_schema: Type[BaseModel] = GetENSDomainSchema
+
+    underlying_session_id: str = None
+
+    def _run(self, address):
+        future = executor.submit(run_async, Socials().get_ens_domain(address))
+        followers = future.result()
+        return followers
+
+    def _arun(self, address):
+        raise NotImplementedError("get_ens_domain does not support async")
+    
 
 # Setting up the Flask app
 app = Flask(__name__)
@@ -152,6 +171,7 @@ def generate_output():
         SendTransactionTool(underlying_session_id = data["session_id"]),
         SwapTokenTool(underlying_session_id = data["session_id"]),
         CheckSocialFollowersTool(underlying_session_id = data["session_id"]),
+        GetENSDomainTool(underlying_session_id = data["session_id"]),   
     ]
     agent = initialize_agent(
         tools,

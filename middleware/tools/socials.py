@@ -49,7 +49,7 @@ class Socials():
             print(e)
 
         return {
-            "get_account_balance": {"error": error, "payload": data},
+            "check_social_followers": {"error": error, "payload": data},
             }
 
     async def get_ens_domain(self, address):
@@ -64,12 +64,12 @@ class Socials():
             return "invalid_address"
         try:
             query =  """
-            query MyQuery($address: Address)  {
+            query MyQuery($address: Identity)  {
                 Domains(input: {filter: {owner: {_eq: $address}}, blockchain: ethereum}) {
                     Domain {
                     name
                     }
-  }
+                }
             }
             """
             
@@ -83,11 +83,10 @@ class Socials():
 
             error = query_response.error
             data = json.dumps(query_response.data)
-            print(data)
         except Exception as e:
             error = e
             print(e)
 
         return {
-            "get_account_balance": {"error": error, "payload": data},
+            "get_ens_domain": {"error": error, "payload": data},
             }

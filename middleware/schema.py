@@ -49,3 +49,11 @@ class CheckSocialFollowersSchema(BaseModel):
     social_media_handle: str = Field(
         description="The username of the account to check the followers of"
     )
+
+class GetENSDomainSchema(BaseModel):
+    """
+    Input for get_ens_domain
+    """
+    address: str = Field(
+        description="The address to get the ens domain of"
+    )
