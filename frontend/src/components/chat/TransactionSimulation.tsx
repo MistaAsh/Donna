@@ -62,10 +62,10 @@ const TransactionSimulation = ({ transaction }) => {
                             <img src={change.logo} alt={`${change.symbol} logo`} className="w-8 h-8 mr-2" />
                             <div className='flex flex-col'>
                                 <p className="text-gray-600 self-start">Sent To</p>
-                                <p className="text-gray-400 text-xs">{change.to.slice(0, 4)}...{change.to.slice(-4)}</p>
+                                <p className="text-gray-400 text-xs">{change.to}</p>
                             </div>
                         </div>
-                        <p className="text-green-500 text-sm ml-auto">{change.amount} {change.symbol}</p>
+                        <p className="text-green-500 text-sm ml-auto">{change.amount.slice(0,4)} {change.symbol}</p>
                     </div>
                 </div>
             ))}
