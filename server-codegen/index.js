@@ -1,9 +1,17 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const port = 3000;
+
+
 const solc = require('solc');
 const fs = require('fs');
 const path = require('path');
 const ethers = require('ethers');
 const Web3 = require('web3');
 const { ThirdwebSDK, directDeployDeterministic } =  require("@thirdweb-dev/sdk");
+
+app.use(bodyParser.json({ limit: '10mb' }));
 
 // Function to find and read OpenZeppelin contracts
 const findImports = (importPath) => {
@@ -31,35 +39,35 @@ contract MyToken is ERC20 {
 `;
 
 // Prepare input for compilation
-const input = {
-    language: 'Solidity',
-    sources: {
-        'MyToken.sol': {
-            content: sourceCode
-        }
-    },
-    settings: {
-        outputSelection: {
-            '*': {
-                '*': ['*']
-            }
-        }
-    }
-};
+// const input = {
+//     language: 'Solidity',
+//     sources: {
+//         'MyToken.sol': {
+//             content: sourceCode
+//         }
+//     },
+//     settings: {
+//         outputSelection: {
+//             '*': {
+//                 '*': ['*']
+//             }
+//         }
+//     }
+// };
 
-// Compile the contract
-const output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
-let contract = {};
-// Handle output (errors and compiled contract)
-if (output.errors) {
-    output.errors.forEach(err => {
-        console.error(err.formattedMessage);
-    });
-} else {
-    contract = output.contracts['MyToken.sol']['MyToken'];
-    console.log('ABI:', contract.abi);
-    console.log('Bytecode:', contract.evm.bytecode.object);
-}
+// // Compile the contract
+// const output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
+// let contract = {};
+// // Handle output (errors and compiled contract)
+// if (output.errors) {
+//     output.errors.forEach(err => {
+//         console.error(err.formattedMessage);
+//     });
+// } else {
+//     contract = output.contracts['MyToken.sol']['MyToken'];
+//     console.log('ABI:', contract.abi);
+//     console.log('Bytecode:', contract.evm.bytecode.object);
+// }
 
 
 // const privateKey = "7fb70f345bcc41dbfa5887bfe5e515c2bcfbf901464c2b8b744c2a50b75a22cf";
@@ -107,10 +115,89 @@ async function deployContract(abi, bytecode) {
         "",
       );
     console.log('Contract deployed at address:', deployedContractAddress);
+
+    return deployedContractAddress;
 }
 
 // Assuming contract compilation was successful
-contract = output.contracts['MyToken.sol']['MyToken'];
-deployContract(contract.abi, contract.evm.bytecode.object)
-    .then(() => console.log('Contract deployed successfully'))
-    .catch(err => console.error('Deployment failed:', err));
+// contract = output.contracts['MyToken.sol']['MyToken'];
+// deployContract(contract.abi, contract.evm.bytecode.object)
+//     .then(() => console.log('Contract deployed successfully'))
+//     .catch(err => console.error('Deployment failed:', err));
+
+
+// Endpoint to compile and deploy the contract
+app.post('/compile', async (req, res) => {
+    try {
+        const sourceCode = req.body.sourceCode;
+
+        if (!sourceCode) {
+            return res.status(400).send('No source code provided');
+        }
+
+        // Prepare input for compilation using the provided source code
+        const input = {
+            language: 'Solidity',
+            sources: {
+                'Contract.sol': {
+                    content: sourceCode
+                }
+            },
+            settings: {
+                outputSelection: {
+                    '*': {
+                        '*': ['*']
+                    }
+                }
+            }
+        };
+
+        // Compile the contract
+        const output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
+
+        if (output.errors) {
+            // Handle compilation errors
+            let errors = output.errors.map(err => err.formattedMessage).join('\n');
+            return res.status(400).send('Compilation errors:\n' + errors);
+        }
+
+        // Assuming contract compilation was successful
+        const contractName = Object.keys(output.contracts['Contract.sol'])[0];
+        const contract = output.contracts['Contract.sol'][contractName];
+        
+        // Deploy the contract
+        // await deployContract(contract.abi, contract.evm.bytecode.object);
+
+        res.send({"abi":contract.abi,"bytecode":contract.evm.bytecode.object.toString()});
+    } catch (err) {
+        console.error('Deployment failed:', err);
+        res.status(500).send('Deployment failed: ' + err.message);
+    }
+});
+
+app.post('/deploy', async (req, res) => {
+    try {
+        const abi = req.body.abi;
+        var bytecode = req.body.bytecode;
+
+        if (!abi || !bytecode) {
+            return res.status(400).send('No ABI or bytecode provided');
+        }
+        if (typeof bytecode !== 'string') {
+            bytecode = bytecode.toString();
+        }
+
+        console.log("Bytecode:", bytecode);
+
+        contractAddress = await deployContract(abi, bytecode);
+
+        res.send({"contractAddress":contractAddress});
+    } catch (err) {
+        console.error('Deployment failed:', err);
+        res.status(500).send('Deployment failed: ' + err.message);
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
