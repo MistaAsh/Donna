@@ -90,14 +90,14 @@ def generate_output():
         return jsonify(message="No Text"), 400
     if data["user_id"] is None or data["user_id"] == "":
         return jsonify(message="No User ID"), 400
-    if data["chat_id"] is None or data["chat_id"] == "":
+    if data["session_id"] is None or data["session_id"] == "":
         return jsonify(message="No Chat ID"), 400
 
     try:
-        data["chat_id"] = int(data["chat_id"])
-        chat_id = data["chat_id"]
+        data["session_id"] = int(data["session_id"])
+        session_id = data["session_id"]
     except:
-        return jsonify(message="chat_id must be a number")
+        return jsonify(message="session_id must be a number")
 
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
@@ -124,13 +124,13 @@ def generate_output():
                 {
                     "text": output,
                     "is_bot": True,
-                    "conversation_id": data["chat_id"],
+                    "conversation_id": data["session_id"],
                 }
             )
             .execute()
         )
     except Exception as e:
-        return jsonify(message="chat_id does not exist in Supabase"), 400
+        return jsonify(message="session_id does not exist in Supabase"), 400
     return jsonify(message="Success")
 
 
