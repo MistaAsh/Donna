@@ -55,6 +55,14 @@ class SwapTokenSchema(BaseModel):
     )
 
 
+class CreateAndDeployContractSchema(BaseModel):
+    """
+    Input for create_and_deploy_contract
+    """
+    contract_name: str = Field(description = "The name of the contract to create")
+    contract_description: str = Field(description = "The prompt to use to generate the contract from")
+
+
 class CheckSocialFollowersSchema(BaseModel):
     """
     Input for check_social_followers

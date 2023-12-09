@@ -85,4 +85,4 @@ class Account:
         except Exception as e:
             error = e
             print(e)
-        return {"method": "swap_token", "error": error, "payload": payload}
+        return 

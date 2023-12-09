@@ -148,6 +148,26 @@ class SwapTokenTool(BaseTool):
         raise NotImplementedError("swap_token does not support async")
 
 
+class CreateAndDeployContractTool(BaseTool):
+    name = "create_and_deploy_contract"
+    description = """
+        Useful when you want to create and deploy a contract.
+        The contract_name is the name of the contract you want to create and deploy.
+        The contract_description is the description of the contract you want to create and deploy.
+    """
+
+    args_schema: Type[BaseModel] = CreateAndDeployContractSchema
+
+    underlying_session_id: str = None
+
+    def _run(self, contract_name, contract_description):
+        pass
+
+    def _arun(self, contract_name, contract_description):
+        raise NotImplementedError("create_and_deploy_contract does not support async")
+
+
+
 class CheckSocialFollowersTool(BaseTool):
     name = "check_social_followers"
     description = """
@@ -231,6 +251,8 @@ def generate_output():
         GetAccountBalanceTool(),
         SendTransactionTool(underlying_session_id=data["session_id"]),
         SwapTokenTool(underlying_session_id=data["session_id"]),
+        # Contract Generation Tools
+        CreateAndDeployContractTool(underlying_session_id=data["session_id"]),
         # Socials Tools
         CheckSocialFollowersTool(underlying_session_id=data["session_id"]),
         GetENSDomainTool(underlying_session_id=data["session_id"]),
