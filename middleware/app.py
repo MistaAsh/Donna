@@ -86,18 +86,10 @@ def generate_output():
 
     if data is None:
         return jsonify(message="No JSON"), 400
-    if data["text"] is None or data["text"] == "":
+    if data["content"] is None or data["content"] == "":
         return jsonify(message="No Text"), 400
-    if data["user_id"] is None or data["user_id"] == "":
-        return jsonify(message="No User ID"), 400
     if data["session_id"] is None or data["session_id"] == "":
         return jsonify(message="No Chat ID"), 400
-
-    try:
-        data["session_id"] = int(data["session_id"])
-        session_id = data["session_id"]
-    except:
-        return jsonify(message="session_id must be a number")
 
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
@@ -114,7 +106,7 @@ def generate_output():
         agent_kwargs=AGENT_KWARGS,
     )
 
-    output = agent.run(data["text"])
+    output = agent.run(data["content"])
 
     # Store the output in supabase
     try:
@@ -122,9 +114,9 @@ def generate_output():
             supabase.table("messages")
             .insert(
                 {
-                    "text": output,
-                    "is_bot": True,
-                    "conversation_id": data["session_id"],
+                    "content": output,
+                    "type": "bot",
+                    "session_id": data["session_id"],
                 }
             )
             .execute()
