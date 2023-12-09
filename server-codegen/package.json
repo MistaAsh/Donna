@@ -11,7 +11,9 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.1",
     "@thirdweb-dev/contracts": "^3.10.4",
+    "@thirdweb-dev/sdk": "^4.0.21",
     "ethers": "^5.7.2",
+    "express": "^4.18.2",
     "solc": "^0.8.23-fixed",
     "web3": "^1.10.0"
   }
