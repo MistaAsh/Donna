@@ -3,10 +3,11 @@ import { useBalance } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { useState } from "react";
 import TokensERC20 from "../src/components/airstack/tokensERC20.tsx";
+import TokensERC20ALL from "../src/components/default/tokensERC20.tsx";
 import TokensNFT from "../src/components/airstack/tokensNFT.tsx";
 import TransactionHistory from "../src/components/transactionHistory.tsx";
 import Contacts from "../src/components/Contacts.tsx";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 
 const ActiveButton = ({ activeTab, tab, onClick }) => {
   return (
@@ -24,18 +25,17 @@ const ActiveButton = ({ activeTab, tab, onClick }) => {
 export default function Home() {
   const address = useAddress();
   const chainId = useChainId();
-  let network = 'ethereum';
+  let network = "ethereum";
   if (chainId === 137) {
-    network = 'polygon';
+    network = "polygon";
   } else if (chainId === 8453) {
-    network = 'base';
+    network = "base";
   } else if (chainId === 534352) {
-    network = 'scroll';
+    network = "scroll";
   } else if (chainId === 5000) {
-    network = 'mantle';
+    network = "mantle";
   }
-  console.log('chainId: ', chainId);
-
+  console.log("chainId: ", chainId);
 
   const { data, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [activeTab, setActiveTab] = useState("tokens");
@@ -63,7 +63,7 @@ export default function Home() {
       <div className="bg-white mx-[300px] min-h-screen pt-10 pb-10 flex flex-col items-center gap-6">
         <div
           className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-black text-white p-3 rounded-md"
-          onClick={() => router.push('/chat')}
+          onClick={() => router.push("/chat")}
         >
           Chat with Donna
         </div>
@@ -102,15 +102,17 @@ export default function Home() {
             />
           </div>
           <div className="flex flex-row items-center justify-center pt-10 px-6 w-full">
-            {activeTab === "tokens" && (
-              <TokensERC20 identity={address} chain={network} />
-            )}
-            {activeTab === "transactions" && (
-              <TransactionHistory chainId={chainId} address={address} />
-            )}
-            {activeTab === "nfts" && (
-              <TokensNFT identity={address} chain={network}/>
-            )}
+            {activeTab === "tokens" &&
+              (chainId === 137 || chainId === 8453 || chainId === 1) ? (
+                <TokensERC20 identity={address} chain={network} />
+              ) : activeTab === "tokens" &&<>cooldude</>}
+            {activeTab === "transactions" && 
+              <TransactionHistory chainId={chainId} address={address} />}
+            {activeTab === "nfts" && 
+            (chainId === 137 || chainId === 8453 || chainId === 1) ? (
+              <TokensNFT identity={address} chain={network} />
+            ): activeTab === "nfts"  && chainId && 
+            <TokensERC20ALL identity={address} chain={chainId} />}
             {activeTab === "contacts" && <Contacts />}
           </div>
         </div>

@@ -68,17 +68,17 @@ const TokensNFT = ({ identity, chain }) => {
 
   return (
     <div className="flex flex-wrap justify-center overflow-y-auto h-full">
-      {data?.TokenBalances?.TokenBalance?.map((token, index) => (
+      {data?.items?.map((token, index) => (
         <div key={index} className="p-4">
           <img
-            src={token?.tokenNfts?.contentValue?.image?.small || "/images/alt-nft.png"}
-            alt={`NFT ${token.tokenId}`}
+            src={token.logo_url || "/images/alt-nft.png"}
+            alt={`${token.contract_name} Logo`}
             className="h-52 w-52 rounded-lg shadow-lg"
           />
         </div>
-      )
-      )}
+      ))}
     </div>
+
   );
 };
 
