@@ -18,7 +18,7 @@ const ChatBox = () => {
   }, [network]);
 
   const InputProcessor = (inputValue: string) => {
-    inputValue.concat(`\n My address is ${address}`);
+    return inputValue.concat(`\n My wallet address is ${address} \n And I am currently on a network with network id ${network}`);
   }
 
   const handleSubmit = async (event) => {

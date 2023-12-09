@@ -6,6 +6,7 @@ import Modal from '@mui/material/Modal';
 import { useContractRead, useContractWrite, useContract, Web3Button } from "@thirdweb-dev/react";
 import { SwapWidget } from '@uniswap/widgets'
 import '@uniswap/widgets/fonts.css'
+import Markdown from 'react-markdown'
 
 // Address that will be approved to spend tokens
 
@@ -233,7 +234,7 @@ const BotMessage = ({ message }) => {
     <div className="flex justify-start w-full relative mb-6 max-w-3xl">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
-          {message}
+          <Markdown>{message}</Markdown>
         </div>
         <SwapModal />
       </div>

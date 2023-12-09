@@ -105,8 +105,8 @@ class SendTransactionTool(BaseTool):
         tx = Account().send_transaction(
             w3, sender_address, receiver_address, token_symbol, token_address, amount
         )
-        push_to_supabase(tx, "to_parse", self.underlying_session_id)
-        return tx
+        push_to_supabase([tx], "to_parse", self.underlying_session_id)
+        return [tx]
 
     def _arun(self, sender_address, receiver_address, amount):
         raise NotImplementedError("send_transaction does not support async")
@@ -141,7 +141,7 @@ class SwapTokenTool(BaseTool):
         ):
             raise ValueError("Invalid account_address or token_address")
         tx = Account().swap_token(w3, account_address, from_token_address, from_token_amount, to_token_address)
-        push_to_supabase(tx, "to_parse", self.underlying_session_id)
+        push_to_supabase([tx], "to_parse", self.underlying_session_id)
         return tx
 
     def _arun(self, from_token, from_token_amount, to_token):

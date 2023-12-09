@@ -1,74 +1,107 @@
 import React, { useEffect, useState } from "react";
-import { useAddress, useSigner } from "@thirdweb-dev/react";
+import { useAddress, useSigner, useWallet } from "@thirdweb-dev/react";
 import { errors, ethers } from "ethers";
 import TransactionSimulation from "./TransactionSimulation";
+import { SwapWidget } from '@uniswap/widgets'
+import '@uniswap/widgets/fonts.css'
 
 const ParseMessage = ({ message }) => {
+  const message_json = JSON.parse(message);
+  console.log(message_json);
+
+  return (
+    <>
+      {message_json.map((transaction, index) => (
+        <TransactionWidget key={index} transaction={transaction} />
+      ))}
+    </>
+  );
+};
+
+
+const TransactionWidget = ({ transaction }) => {
   const signer = useSigner();
   const address = useAddress();
-  const message_json = JSON.parse(message);
+  const wallet = useWallet();
+  const [swapDetails, setSwapDetails] = useState({
+    from_token: "",
+    to_token: "",
+    from_token_amount: "",
+  });
+  const [isSwapping, setIsSwapping] = useState(false);
 
   useEffect(() => {
-    console.log(message_json);
-  }, [])
+    if (transaction.payload.type === "swap_token") {
+      const from_token = transaction.payload.from_token;
+      const to_token = transaction.payload.to_token;
+      const from_token_amount = transaction.payload.from_token_amount;
+      setSwapDetails({
+        from_token,
+        to_token,
+        from_token_amount,
+      });
+    }
+  }, [transaction]);
 
-  const sendTransaction = async (payloads) => {
+  const NATIVE = 'NATIVE'
+
+  // WBTC as the default output token
+  const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
+
+  const sendTransaction = async (payload) => {
     try {
-      // Iterate over the array of payloads
-      for (const payload of payloads) {
-        const tx = {
-          to: payload.to,
-          value: ethers.utils.parseUnits(payload.value, 'wei'),
-          from: address,
-        };
-        const txResponse = await signer?.sendTransaction(tx);
-        await txResponse?.wait();
-      }
+      const tx = {
+        to: payload.to,
+        value: ethers.utils.parseUnits(payload.value, 'wei'),
+        from: address,
+      };
+      const txResponse = await signer?.sendTransaction(tx);
+      await txResponse?.wait();
     } catch (error) {
       console.error("Transaction failed", error);
     }
   };
 
-  const handleButtonClick = () => {
-    const message_json = JSON.parse(message);
-    if (message_json.method === "send_transaction" && !message_json.error) {
-      sendTransaction(message_json.payload);
-    }
-  };
-
-  // Conditionally render nothing if there is an error
-  if (message_json.error !== false) {
-    return null;
-  }
-
   return (
     <div className="flex justify-start w-full relative mb-6">
       <div className="flex bg-slate-600 rounded-2xl p-5">
-        <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
-          This is a preview of the transaction you are about to sign
-          {
-            message_json.payload.map((payload, index) => (
+        {
+          (transaction.payload.type === "send_transaction") && (
+            <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
+              This is a preview of the transaction you are about to sign
               <TransactionSimulation transaction={{
-                from: payload.from,
-                to: payload.to,
-                value: payload.value
+                from: transaction.payload.from,
+                to: transaction.payload.to,
+                value: transaction.payload.value
               }} />
-            ))
-          }
-          <div className="flex flex-col mt-3">
-          Please review the details before confirming
-            <button
-              className="text-slate-600 bg-white p-2 rounded mt-3"
-              onClick={handleButtonClick}
-            >
-              Confirm and Send Transaction
-            </button>
-          </div>
-        </div>
+              <div className="flex flex-col mt-3">
+                Please review the details before confirming
+                <button
+                  className="text-slate-600 bg-white p-2 rounded mt-3"
+                  onClick={() => sendTransaction(transaction.payload)}
+                >
+                  Confirm and Send Transactions
+                </button>
+              </div>
+            </div>
+          )
+        }
+        {
+          (transaction.payload.type === "swap_token") && (
+            <div className="Uniswap">
+              <SwapWidget 
+                defaultInputTokenAddress={NATIVE}
+                defaultInputAmount={2}
+                defaultOutputTokenAddress={WBTC}
+                />
+            </div>
+          )
+        }
+
       </div>
       <span className="w-10 h-10 rounded-br-full bg-slate-600 absolute bottom-0 left-0 transform translate-y-1/2"></span>
     </div>
-  );
-};
+  )
+}
 
 export default ParseMessage;

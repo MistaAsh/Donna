@@ -51,7 +51,7 @@ const TransactionSimulation = ({ transaction }) => {
 
     useEffect(() => {
         getChanges();
-    }, [transaction]);
+    }, [chainId]);
 
     return (
         <div className="max-w-md mx-auto mt-4 px-4 bg-white rounded-md shadow-md self-start">

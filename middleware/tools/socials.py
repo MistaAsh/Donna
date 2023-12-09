@@ -64,7 +64,7 @@ class Socials:
         api_client = AirstackClient(api_key=AIRSTACK_API_KEY)
 
         # check if address is valid
-        if not Web3.isAddress(address):
+        if not Web3.is_address(address):
             return "invalid_address"
         try:
             query = """
