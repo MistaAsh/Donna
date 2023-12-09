@@ -49,7 +49,7 @@ class Account:
             }
             payload = tx
         except Exception as e:
-            error = True
+            error = e
             print(e)
         return {"send_transaction": {"error": error, "payload": payload}}
 
@@ -71,16 +71,6 @@ class Account:
             }
             payload = tx
         except Exception as e:
-            error = True
+            error = e
             print(e)
         return {"swap_token": {"error": error, "payload": payload}}
-    def check_social_followers(self, social_media, username):
-        """
-        Return the number of followers of the username on the social media platform
-        """
-        error, payload = False, {}
-        try:
-            pass
-        except Exception as e:
-            error = True
-            print(e)

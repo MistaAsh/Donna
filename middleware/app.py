@@ -1,13 +1,5 @@
 from imports import *
 
-from constants import (
-    WEB3_HTTP_PROVIDER_URI,
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    AGENT_KWARGS,
-    RPC_URL,
-)
-
 # Setting up the Web3 provider
 w3 = Web3(Web3.HTTPProvider(RPC_URL["ethereum"]))
 
@@ -96,7 +88,7 @@ class SwapTokenTool(BaseTool):
 class CheckSocialFollowers(BaseTool):
     name = "check_social_followers"
     description = """
-        Useful when you want to check the number of followers on lens or fancaster.
+        Useful when you want to check the number of followers on Web3 social media platforms like Lens or Fancaster for a particular user or address.
         The social_media_platform is the name of the social media platform you want to check.
         The social_media_handle is the handle of the account you want to check.
     """
@@ -106,7 +98,7 @@ class CheckSocialFollowers(BaseTool):
     underlying_session_id: str = None
 
     def _run(self, social_media_platform, social_media_handle):
-        followers = SocialMedia().check_social_followers(social_media_platform, social_media_handle)
+        followers = Socials().check_social_followers(social_media_platform, social_media_handle)
         return followers
 
     def _arun(self, social_media_platform, social_media_handle):

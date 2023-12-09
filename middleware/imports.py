@@ -1,4 +1,5 @@
 from tools.account import Account
+from tools.socials import Socials
 from constants import *
 from schema import *
 

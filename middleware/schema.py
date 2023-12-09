@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 
-
 class GetAccountBalanceSchema(BaseModel):
     """
     Input for get_account_balance
