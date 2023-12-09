@@ -1,5 +1,6 @@
 from tools.account import Account
 from tools.socials import Socials
+from tools.contract import Contract
 from constants import *
 from schema import *
 

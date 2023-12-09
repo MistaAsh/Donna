@@ -161,7 +161,7 @@ class CreateAndDeployContractTool(BaseTool):
     underlying_session_id: str = None
 
     def _run(self, contract_name, contract_description):
-        pass
+        return Contract().create_and_deploy_contract(contract_name, contract_description)
 
     def _arun(self, contract_name, contract_description):
         raise NotImplementedError("create_and_deploy_contract does not support async")

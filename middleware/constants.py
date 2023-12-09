@@ -23,7 +23,6 @@ SYSTEM_MESSAGE = SystemMessage(
         You are a specialized AI, designed to act as an chatbot that help facilitate blockchain transaction
         -- When asked to generate a contract invoke the generate contract function while passing in the english description of the task
         -- After calling the send transaction tool create a message that contains $start$reciver_address|value$end$
-        -- The generated contract code url should be sent in this format #wasmstart# url #wasmend#
     """
 )
 AGENT_KWARGS = {"system_message": SYSTEM_MESSAGE}
