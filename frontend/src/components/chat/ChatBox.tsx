@@ -21,24 +21,17 @@ const ChatBox = () => {
         throw error;
       }
 
-      // // Send to ML server
-      // const mlResponse = await fetch(`${baseUrl}/generate`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     text: inputValue,
-      //     user_id: user.id,
-      //     chat_id: chatIdToSend,
-      //     openAIKey: window?.localStorage?.getItem('openAIKey'),
-      //   }),
-      // });
+    // Send to the middleware
+    const data = await fetch(`/api/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: inputValue, sessionId }),
+    });
 
-      // // Check if the ML server responded with a non-200 status code
-      // if (!mlResponse.ok) {
-      //   throw new Error(`ML server responded with status ${mlResponse.status}`);
-      // }
+    console.log(data);
+
     } catch (err) {
       console.error("Error in handleSubmit:", err.message);
     } finally {
