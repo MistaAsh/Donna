@@ -4,6 +4,7 @@ import { errors, ethers } from "ethers";
 import TransactionSimulation from "./TransactionSimulation";
 import { SwapWidget } from '@uniswap/widgets'
 import '@uniswap/widgets/fonts.css'
+import Markdown from 'react-markdown'
 
 const ParseMessage = ({ message }) => {
   const message_json = JSON.parse(message);
@@ -71,7 +72,7 @@ const TransactionWidget = ({ transaction }) => {
     <div className="flex justify-start w-full relative mb-6">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         {
-          (transaction?.payload?.type === "send_transaction") && (
+          (transaction?.method === "send_transaction") && (
             <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
               This is a preview of the transaction you are about to sign
               <TransactionSimulation transaction={{
@@ -92,7 +93,7 @@ const TransactionWidget = ({ transaction }) => {
           )
         }
         {
-          (transaction?.payload?.type === "swap_token") && (
+          (transaction?.method === "swap_token") && (
             <div className="Uniswap">
               <SwapWidget
                 defaultInputTokenAddress={NATIVE}
@@ -102,7 +103,15 @@ const TransactionWidget = ({ transaction }) => {
             </div>
           )
         }
-
+        {
+          transaction?.method === "create_and_deploy_tcontract" && (
+            <div className="markdown-body p-4">
+              <Markdown>
+                {transaction.payload}
+              </Markdown>
+            </div>
+          )
+        }
       </div>
       <span className="w-10 h-10 rounded-br-full bg-slate-600 absolute bottom-0 left-0 transform translate-y-1/2"></span>
     </div>
