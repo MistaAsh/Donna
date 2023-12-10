@@ -2,6 +2,7 @@ import { ThirdwebProvider } from "@thirdweb-dev/react";
 import "../styles/globals.css";
 import { init } from "@airstack/airstack-react";
 import { AirstackProvider, useQuery } from "@airstack/airstack-react";
+import 'github-markdown-css';
 
 // This is the chain your dApp will work on.
 // Change this to the chain your app is built for.

@@ -1,14 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
-import { useAddress, useChainId } from "@thirdweb-dev/react";
+import { useAddress, useChainId, useSigner } from "@thirdweb-dev/react";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { useContractRead, useContractWrite, useContract, Web3Button } from "@thirdweb-dev/react";
 import { SwapWidget } from '@uniswap/widgets'
 import '@uniswap/widgets/fonts.css'
 import Markdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { directDeployDeterministic } from "@thirdweb-dev/react";
 
 // Address that will be approved to spend tokens
 
@@ -231,8 +230,20 @@ const SwapModal = () => {
 }
 
 const DeployContractButton = ({ abi, byteCode }) => {
+  const address = useAddress();
+  const signer = useSigner();
+  const deployContract = async () => {
+    const deployedContractAddress = await directDeployDeterministic(
+      byteCode,
+      abi,
+      signer,
+      [],
+      "",
+    );
+    console.log(deployedContractAddress, 'deployedContractAddress')
+  }
   return (
-    <button className="text-slate-600 bg-white p-2 rounded mt-3">
+    <button className="text-slate-600 bg-white p-2 rounded mt-3" onClick={deployContract}>
       Deploy Contract
     </button>
   )
@@ -285,25 +296,7 @@ const BotMessage = ({ message }) => {
           {abi && bytecode ? <DeployContractButton abi={abi} byteCode={bytecode} /> :
             <Markdown
               children={message}
-              components={{
-                code(props) {
-                  const { children, className, node, ...rest } = props
-                  const match = /language-(\w+)/.exec(className || '')
-                  return match ? (
-                    <SyntaxHighlighter
-                      {...rest}
-                      PreTag="div"
-                      children={String(children).replace(/\n$/, '')}
-                      language={match[1]}
-                      style={dark}
-                    />
-                  ) : (
-                    <code {...rest} className={className}>
-                      {children}
-                    </code>
-                  )
-                }
-              }}
+              className='markdown-body'
             />
           }
         </div>
