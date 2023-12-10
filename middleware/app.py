@@ -140,9 +140,10 @@ class SwapTokenTool(BaseTool):
         ):
             raise ValueError("Invalid account_address or token_address")
         tx = Account().swap_token(w3, account_address, from_token_address, from_token_amount, to_token_address)
+        print(tx)
         push_to_supabase([tx], "to_parse", self.underlying_session_id)
         return tx
-
+    
     def _arun(self, from_token, from_token_amount, to_token):
         raise NotImplementedError("swap_token does not support async")
 

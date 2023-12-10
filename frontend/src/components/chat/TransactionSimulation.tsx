@@ -10,6 +10,7 @@ const chainIdLinkMapping = {
 }
 
 const TransactionSimulation = ({ transaction }) => {
+    if (transaction.method === 'swap_token') return null;
     const [changes, setChanges] = useState([]);
     const [error, setError] = useState(null);
     const chainId = useChainId();

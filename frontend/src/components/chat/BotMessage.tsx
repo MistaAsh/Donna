@@ -305,11 +305,11 @@ const BotMessage = ({ message }) => {
   return (
     <div className="flex justify-start w-full relative mb-6 max-w-3xl">
       <div className="flex bg-slate-600 rounded-2xl p-5">
-        <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
+        <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden font-medium">
           {abi && bytecode ? <DeployContractButton abi={abi} byteCode={bytecode} /> :
             <Markdown
               children={message}
-              className='markdown-body'
+              className=''
             />
           }
         </div>

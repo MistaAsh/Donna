@@ -8,20 +8,28 @@ import Markdown from 'react-markdown'
 
 const ParseMessage = ({ message }) => {
   const [messageJson, setMessageJson] = useState([]);
+
   useEffect(() => {
     async function parseMessage() {
-      const message_json = await JSON.parse(message);
-      setMessageJson(message_json);
+      try {
+        const message_json = await JSON.parse(message);
+        setMessageJson(message_json);
+      } catch (error) {
+        console.error("Error parsing message:", error);
+      }
     }
-    parseMessage();
-  }, [message]);
+    if (message) {
+      parseMessage();
+    }
+  }, []);
 
   return (
     <>
       {messageJson?.map((transaction, index) => {
         if (transaction) {
-          return <TransactionWidget key={index} transaction={transaction} />
+          return <TransactionWidget key={index} transaction={transaction} />;
         }
+        return null;
       })}
     </>
   );
@@ -34,27 +42,29 @@ const TransactionWidget = ({ transaction }) => {
   const signer = useSigner();
   const address = useAddress();
   const wallet = useWallet();
-  const [swapDetails, setSwapDetails] = useState({
-    from_token: "",
-    to_token: "",
-    from_token_amount: "",
-  });
-  const [isSwapping, setIsSwapping] = useState(false);
+  // const [swapDetails, setSwapDetails] = useState({
+  //   from_token: "",
+  //   to_token: "",
+  //   from_token_amount: "",
+  // });
+  // const [isSwapping, setIsSwapping] = useState(false);
 
-  useEffect(() => {
-    if (transaction?.method === "swap_token") {
-      const from_token = transaction.payload.from_token;
-      const to_token = transaction.payload.to_token;
-      const from_token_amount = transaction.payload.from_token_amount;
-      setSwapDetails({
-        from_token,
-        to_token,
-        from_token_amount,
-      });
-    }
+  // console.log("swap details", swapDetails);
 
-    console.log("Transaction", transaction);
-  }, [transaction]);
+  // useEffect(() => {
+  //   if (transaction?.method === "swap_token") {
+  //     const from_token = transaction?.payload?.from_token;
+  //     const to_token = transaction?.payload?.to_token;
+  //     const from_token_amount = transaction?.payload?.from_token_amount;
+  //     setSwapDetails({
+  //       from_token,
+  //       to_token,
+  //       from_token_amount,
+  //     });
+  //   }
+
+  //   console.log("swap details", swapDetails);
+  // }, [transaction]);
 
   const NATIVE = 'NATIVE'
 
@@ -80,17 +90,18 @@ const TransactionWidget = ({ transaction }) => {
   };
 
   return (
-    <div className="flex justify-start w-full relative mb-6">
+    <div className="flex justify-start w-full relative mb-6 font-medium">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         {
           (transaction?.method === "send_transaction") && (
             <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
               This is a preview of the transaction you are about to sign
-              <TransactionSimulation transaction={{
+              {transaction?.method !== "swap_token" && <TransactionSimulation transaction={{
                 from: transaction.payload.from,
                 to: transaction.payload.to,
-                value: transaction.payload.value
-              }} />
+                value: transaction.payload.value,
+                method: transaction.method,
+              }} />}
               <div className="flex flex-col mt-3">
                 Please review the details before confirming
                 <button
