@@ -7,19 +7,24 @@ import '@uniswap/widgets/fonts.css'
 
 const ParseMessage = ({ message }) => {
   const message_json = JSON.parse(message);
-  console.log(message_json);
+
+  // console.log(message_json);
 
   return (
     <>
-      {message_json.map((transaction, index) => (
-        <TransactionWidget key={index} transaction={transaction} />
-      ))}
+      {message_json.map((transaction, index) => {
+        if (transaction) {
+          return <TransactionWidget key={index} transaction={transaction} />
+        }
+      })}
     </>
   );
 };
 
 
 const TransactionWidget = ({ transaction }) => {
+  if (Object.keys(transaction?.payload).length === 0) return null;
+
   const signer = useSigner();
   const address = useAddress();
   const wallet = useWallet();
@@ -31,7 +36,7 @@ const TransactionWidget = ({ transaction }) => {
   const [isSwapping, setIsSwapping] = useState(false);
 
   useEffect(() => {
-    if (transaction.payload.type === "swap_token") {
+    if (transaction?.payload?.type === "swap_token") {
       const from_token = transaction.payload.from_token;
       const to_token = transaction.payload.to_token;
       const from_token_amount = transaction.payload.from_token_amount;
@@ -66,7 +71,7 @@ const TransactionWidget = ({ transaction }) => {
     <div className="flex justify-start w-full relative mb-6">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         {
-          (transaction.payload.type === "send_transaction") && (
+          (transaction?.payload?.type === "send_transaction") && (
             <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
               This is a preview of the transaction you are about to sign
               <TransactionSimulation transaction={{
@@ -87,13 +92,13 @@ const TransactionWidget = ({ transaction }) => {
           )
         }
         {
-          (transaction.payload.type === "swap_token") && (
+          (transaction?.payload?.type === "swap_token") && (
             <div className="Uniswap">
-              <SwapWidget 
+              <SwapWidget
                 defaultInputTokenAddress={NATIVE}
                 defaultInputAmount={2}
                 defaultOutputTokenAddress={WBTC}
-                />
+              />
             </div>
           )
         }
