@@ -82,7 +82,6 @@ class SendTransactionTool(BaseTool):
         The sender_address is the address of the wallet you want to send the transaction from.
         The receiver_address is the address of the wallet you want to send the transaction to.
         The token_symbol is a set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to send (If not provided we are using the native token and don't need it as input).
-        The amount is the amount of tokens you want to send.
         The current_network_id is the id of the network you are currently on
     """
 

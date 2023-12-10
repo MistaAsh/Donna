@@ -73,7 +73,7 @@ const ChatWindow = () => {
       <div className="flex flex-col bg-white gap-3.5">
         <Header />
         <div className="flex flex-col-reverse flex-grow p-5 bg-white overflow-y-scroll h-[78vh]">
-          {messages.map(({ type, content }) =>
+          {messages?.map(({ type, content }) =>
             (type === "bot" && <BotMessage message={content} />) ||
             (type === "user" && <UserMessage message={content} />) ||
             (type === "to_parse" && <ParseMessage message={content} />),

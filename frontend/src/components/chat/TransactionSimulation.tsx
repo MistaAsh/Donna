@@ -15,14 +15,14 @@ const TransactionSimulation = ({ transaction }) => {
     const chainId = useChainId();
 
     const getChanges = async () => {
-        const amountInWei = transaction.value;
-        const amountInWeiBN = ethers.utils.parseUnits(amountInWei, 'wei');
+        const amountInWei = transaction.value * 10 ** 18;
+        const amountInWeiBN = ethers.utils.parseUnits(amountInWei.toString(), 'wei');
         console.log(amountInWeiBN)
         const amountHash = amountInWeiBN.toHexString();
         const options = {
             method: 'POST',
             headers: { accept: 'application/json', 'content-type': 'application/json' },
-            body: JSON.stringify({
+            body: JSON.stringify({  
                 id: 1,
                 jsonrpc: '2.0',
                 method: 'alchemy_simulateAssetChanges',
@@ -65,7 +65,7 @@ const TransactionSimulation = ({ transaction }) => {
                                 <p className="text-gray-400 text-xs">{change.to}</p>
                             </div>
                         </div>
-                        <p className="text-green-500 text-sm ml-auto">{change.amount.slice(0,4)} {change.symbol}</p>
+                        <p className="text-green-500 text-sm ml-auto">{change.amount.slice(0,8)} {change.symbol}</p>
                     </div>
                 </div>
             ))}

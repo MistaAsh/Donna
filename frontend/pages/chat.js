@@ -12,7 +12,7 @@ const Chat = () => {
       // If session ID is not stored, generate a new one and store it in sessionStorage
       const newSessionId = generateRandomString(10);
       sessionStorage.setItem('sessionId', newSessionId);
-      console.log('Session ID generated and stored in sessionStorage: ', newSessionId);
+      // console.log('Session ID generated and stored in sessionStorage: ', newSessionId);
     }
   }, []);
   return (
