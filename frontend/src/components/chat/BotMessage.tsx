@@ -233,7 +233,19 @@ const DeployContractButton = ({ abi, byteCode }) => {
   const address = useAddress();
   const signer = useSigner();
   const deployContract = async () => {
-    const abi_json = await JSON.parse(abi)
+    // console.log(abi)
+    // Replace 'False' and 'True' with 'false' and 'true'
+    let fixedAbiString = abi.replace(/False/g, 'false').replace(/True/g, 'true');
+
+    // Replace single quotes with double quotes
+    fixedAbiString = fixedAbiString.replace(/'/g, '"');
+
+    // Parse the corrected string
+    const abi_json = JSON.parse(fixedAbiString);
+
+    console.log(fixedAbiString, 'fixedAbiString')
+    // Parse the corrected string
+    // console.log(abi_json, 'abi_json')
     const deployedContractAddress = await directDeployDeterministic(
       byteCode,
       abi_json,
