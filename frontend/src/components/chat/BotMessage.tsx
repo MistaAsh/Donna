@@ -233,9 +233,10 @@ const DeployContractButton = ({ abi, byteCode }) => {
   const address = useAddress();
   const signer = useSigner();
   const deployContract = async () => {
+    const abi_json = await JSON.parse(abi)
     const deployedContractAddress = await directDeployDeterministic(
       byteCode,
-      abi,
+      abi_json,
       signer,
       [],
       "",
