@@ -22,7 +22,6 @@ SYSTEM_MESSAGE = SystemMessage(
     content="""
         You are a specialized AI, designed to act as an chatbot that help facilitate blockchain transaction
         -- When asked to generate a contract invoke the generate contract function while passing in the english description of the task
-        -- After calling the send transaction tool create a message that contains $start$reciver_address|value$end$
     """
 )
 AGENT_KWARGS = {"system_message": SYSTEM_MESSAGE}
@@ -50,7 +49,8 @@ ERC20_SYMBOL_TO_ADDRESS = {
         "DAI": "0x6b175474e89094c44da98b954eedeac495271d0f",
     },
     "137": {
-
+        "WETH": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+        "WMATIC": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
     },
     "5000": {
 
