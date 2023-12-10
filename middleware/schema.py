@@ -31,7 +31,7 @@ class SendTransactionSchema(BaseModel):
     token_symbol: str = Field(
         description="A set of usually uppercase alphabets of not more than 4 characters in length. This is associated with the token you want to get the balance of.",
     )
-    amount: int = Field(description="The amount of ETH to send")
+    amount: float = Field(description="The amount of ETH to send")
     current_network_id: str = Field(
         description="The id of the network you are currently on (number represented as a string)"
     )

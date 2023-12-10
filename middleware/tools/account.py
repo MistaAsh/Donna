@@ -48,22 +48,23 @@ class Account:
         error, payload = False, {}
 
         balance = float(self.get_account_balance(w3, sender_address, token_address)["payload"]["balance"])
-        if balance < amount:
-            error = "Insufficient funds"
-        else:
-            try:
-                tx = {
-                    "from": sender_address,
-                    "to": receiver_address,
-                    "value": w3.to_wei(amount, "ether"),
-                    "token_symbol": token_symbol,
-                    # "gas": 2000000,
-                    # "gasPrice": w3.toWei("50", "gwei")
-                }
-                payload = tx
-            except Exception as e:
-                error = e
-                print(e)
+        # if balance < amount:
+        #     error = "Insufficient funds"
+        # else:
+        print("amount: ", amount)
+        try:
+            tx = {
+                "from": sender_address,
+                "to": receiver_address,
+                "value": amount,
+                "token_symbol": token_symbol,
+                # "gas": 2000000,
+                # "gasPrice": w3.toWei("50", "gwei")
+            }
+            payload = tx
+        except Exception as e:
+            error = e
+            print(e)
         return {"method": "send_transaction", "error": error, "payload": payload}
 
     # TODO: Identify the parameters to swap_token on the frontend and send the required from the backend
