@@ -17,4 +17,4 @@ from langchain.chat_models import ChatOpenAI
 from langchain.tools import BaseTool
 
 from airstack.execute_query import AirstackClient
-import json, asyncio
+import re, json, asyncio

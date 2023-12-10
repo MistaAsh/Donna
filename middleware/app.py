@@ -161,7 +161,17 @@ class CreateAndDeployContractTool(BaseTool):
     underlying_session_id: str = None
 
     def _run(self, contract_name, contract_description):
-        return Contract().create_and_deploy_contract(contract_name, contract_description)
+        tx = Contract().create_and_deploy_contract(contract_name, contract_description)
+        push_to_supabase([tx], "to_parse", self.underlying_session_id)
+
+        regex = r"```solidity(.*?)```"
+        match = re.search(regex, contract_description, re.DOTALL)
+        if match:
+            result = match.group(1)
+        else:
+            raise ValueError("Invalid code generation")
+        
+        return tx
 
     def _arun(self, contract_name, contract_description):
         raise NotImplementedError("create_and_deploy_contract does not support async")
