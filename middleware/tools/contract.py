@@ -20,9 +20,11 @@ class Contract:
                 Generate a Solidity smart contract with the following description:
                 Contract Name: {contract_name}
                 Contract Description: {contract_description}
-                
+                When generating the constructor DO NOT TAKE ANY PARAMETERS. e.g: constructor()
                 Additionally,
                 1. The contract should always have this line at the top of the file: `// SPDX-License-Identifier: MIT`
+                2. The contract code should be enclosed in a ```solidity ``` code block
+                3. Don't use openzepplin counter or ownable contracts
             """
 
             chat_completion = client.chat.completions.create(
@@ -32,9 +34,8 @@ class Contract:
                         "content": prompt,
                     }
                 ],
-                model="gpt-3.5-turbo",
+                model="gpt-4-1106-preview",
             )
-            print("Chat: ", chat_completion)
             payload = chat_completion.choices[0].message.content
         except Exception as e:
             error = e

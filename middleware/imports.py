@@ -18,3 +18,4 @@ from langchain.tools import BaseTool
 
 from airstack.execute_query import AirstackClient
 import re, json, asyncio
+import requests

@@ -165,13 +165,20 @@ class CreateAndDeployContractTool(BaseTool):
         push_to_supabase([tx], "to_parse", self.underlying_session_id)
 
         regex = r"```solidity(.*?)```"
-        match = re.search(regex, contract_description, re.DOTALL)
+        match = re.search(regex, tx['payload'], re.DOTALL)
+        result = None
         if match:
             result = match.group(1)
         else:
-            raise ValueError("Invalid code generation")
+            return "Invalid code was generated"
         
-        return tx
+        response = requests.post('http://localhost:3023/compile', json={"sourceCode":result})
+        response_string = response.text
+        response_data = json.loads(response_string)
+        print("response:",response_data['abi'])
+        push_to_supabase(f"#abistart#{response_data['abi']}#abiend#\n#bcstart#{response_data['bytecode']}#bcend#", "bot", self.underlying_session_id)
+
+        return "Button to generate contract has been created"
 
     def _arun(self, contract_name, contract_description):
         raise NotImplementedError("create_and_deploy_contract does not support async")
