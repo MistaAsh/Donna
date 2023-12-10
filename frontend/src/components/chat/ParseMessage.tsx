@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useAddress, useSigner, useWallet } from "@thirdweb-dev/react";
-import { errors, ethers } from "ethers";
+import { errors, ethers, BigNumber } from "ethers";
 import TransactionSimulation from "./TransactionSimulation";
 import { SwapWidget } from '@uniswap/widgets'
 import '@uniswap/widgets/fonts.css'
 
 const ParseMessage = ({ message }) => {
-  const message_json = JSON.parse(message);
-
-  // console.log(message_json);
+  const [messageJson, setMessageJson] = useState([]);
+  useEffect(() => {
+    async function parseMessage() {
+      const message_json = await JSON.parse(message);
+      setMessageJson(message_json);
+    }
+    parseMessage();
+  }, [message]);
 
   return (
     <>
-      {message_json.map((transaction, index) => {
+      {messageJson?.map((transaction, index) => {
         if (transaction) {
           return <TransactionWidget key={index} transaction={transaction} />
         }
@@ -36,7 +41,7 @@ const TransactionWidget = ({ transaction }) => {
   const [isSwapping, setIsSwapping] = useState(false);
 
   useEffect(() => {
-    if (transaction?.payload?.type === "swap_token") {
+    if (transaction?.method === "swap_token") {
       const from_token = transaction.payload.from_token;
       const to_token = transaction.payload.to_token;
       const from_token_amount = transaction.payload.from_token_amount;
@@ -46,6 +51,8 @@ const TransactionWidget = ({ transaction }) => {
         from_token_amount,
       });
     }
+
+    console.log("Transaction", transaction);
   }, [transaction]);
 
   const NATIVE = 'NATIVE'
@@ -55,11 +62,15 @@ const TransactionWidget = ({ transaction }) => {
 
   const sendTransaction = async (payload) => {
     try {
+      // Assuming payload.value is in Ether and needs to be converted to Wei
+      const valueInWei = ethers.utils.parseUnits(payload?.value?.toString(), 'ether');
+
       const tx = {
         to: payload.to,
-        value: ethers.utils.parseUnits(payload.value, 'wei'),
+        value: valueInWei.toString(),
         from: address,
       };
+
       const txResponse = await signer?.sendTransaction(tx);
       await txResponse?.wait();
     } catch (error) {
@@ -71,7 +82,7 @@ const TransactionWidget = ({ transaction }) => {
     <div className="flex justify-start w-full relative mb-6">
       <div className="flex bg-slate-600 rounded-2xl p-5">
         {
-          (transaction?.payload?.type === "send_transaction") && (
+          (transaction?.method === "send_transaction") && (
             <div className="flex flex-col text-white ml-1 flex-grow overflow-hidden">
               This is a preview of the transaction you are about to sign
               <TransactionSimulation transaction={{
@@ -83,7 +94,7 @@ const TransactionWidget = ({ transaction }) => {
                 Please review the details before confirming
                 <button
                   className="text-slate-600 bg-white p-2 rounded mt-3"
-                  onClick={() => sendTransaction(transaction.payload)}
+                  onClick={() => sendTransaction(transaction?.payload)}
                 >
                   Confirm and Send Transactions
                 </button>
@@ -92,7 +103,7 @@ const TransactionWidget = ({ transaction }) => {
           )
         }
         {
-          (transaction?.payload?.type === "swap_token") && (
+          (transaction?.method === "swap_token") && (
             <div className="Uniswap">
               <SwapWidget
                 defaultInputTokenAddress={NATIVE}
